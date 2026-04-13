@@ -2,7 +2,7 @@ name: Create Branch Per Developer
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [labeled]
 
 permissions:
   contents: write
@@ -15,14 +15,15 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set branch name safely
+      - name: Get correct label
         run: |
           LABELS='${{ toJson(github.event.issue.labels) }}'
 
           LABEL=$(echo $LABELS | jq -r '.[0].name')
 
           if [ -z "$LABEL" ] || [ "$LABEL" == "null" ]; then
-            LABEL="task"
+            echo "No valid label found, exiting..."
+            exit 1
           fi
 
           BRANCH="feature/$LABEL-${{ github.actor }}"
