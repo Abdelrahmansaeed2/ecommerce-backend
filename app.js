@@ -1,11 +1,26 @@
-import express from "express";
+const express = require("express");
+const morgan = require("morgan");
+const limiter = require("./middlewares/rateLimit");
+const errorHandler = require("./middlewares/errorMiddleware");
 
 const app = express();
 
+// body parser
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("API is running...");
-});
+// logger
+app.use(morgan("dev"));
 
-export default app;
+// rate limiter
+app.use(limiter);
+
+// routes
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/products", require("./routes/productRoutes"));
+app.use("/api/categories", require("./routes/categoryRoutes"));
+app.use("/api/orders", require("./routes/orderRoutes"));
+
+// error middleware
+app.use(errorHandler);
+
+module.exports = app;
