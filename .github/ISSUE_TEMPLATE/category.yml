@@ -1,16 +1,24 @@
 name: Category Module
+description: Category management system
 title: "[CATEGORY] "
 labels: ["category"]
-body:
-  - type: markdown
-    value: |
-      Category Module:
-      - [ ] Create Category schema and model
-      - [ ] GET all categories
-      - [ ] GET single category
-      - [ ] POST create category (admin only)
-      - [ ] PUT or PATCH update category (admin only)
-      - [ ] DELETE category (admin only)
 
-      Relationships:
-      - [ ] Link products to categories
+body:
+  - type: checkboxes
+    id: core
+    attributes:
+      label: Core API Requirements
+      options:
+        - label: Create Category schema and model
+        - label: GET all categories
+        - label: GET single category
+        - label: POST create category (admin only)
+        - label: PUT/PATCH update category (admin only)
+        - label: DELETE category (admin only)
+
+  - type: checkboxes
+    id: relations
+    attributes:
+      label: Relationships
+      options:
+        - label: Link products to categories

@@ -1,16 +1,24 @@
 name: Order Module
+description: Order processing system
 title: "[ORDER] "
 labels: ["order"]
-body:
-  - type: markdown
-    value: |
-      Order Module:
-      - [ ] Create Order schema and model
-      - [ ] Create order endpoint
-      - [ ] GET all orders (admin)
-      - [ ] GET user orders
-      - [ ] Calculate total price
 
-      Relationships:
-      - [ ] Link order to user
-      - [ ] Link order to products
+body:
+  - type: checkboxes
+    id: core
+    attributes:
+      label: Core API Requirements
+      options:
+        - label: Create Order schema and model
+        - label: Create order endpoint
+        - label: GET all orders (admin only)
+        - label: GET user orders
+        - label: Calculate total price
+
+  - type: checkboxes
+    id: relations
+    attributes:
+      label: Relationships
+      options:
+        - label: Link order to user
+        - label: Link order to products

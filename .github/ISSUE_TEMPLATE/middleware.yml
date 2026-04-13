@@ -1,19 +1,33 @@
 name: Middleware and System Configuration
+description: Middleware and system setup
 title: "[MIDDLEWARE] "
 labels: ["middleware"]
+
 body:
-  - type: markdown
-    value: |
-      Middleware:
-      - [ ] Authentication middleware (verify JWT)
-      - [ ] Role middleware (admin/user)
-      - [ ] Error handling middleware
-      - [ ] Logger (morgan)
+  - type: checkboxes
+    id: middleware
+    attributes:
+      label: Middleware
+      options:
+        - label: Authentication middleware (verify JWT)
+        - label: Role middleware (admin/user)
+        - label: Error handling middleware
+        - label: Logger (morgan)
 
-      System Setup:
-      - [ ] Setup Express app
-      - [ ] Setup MongoDB connection using Mongoose
-      - [ ] Setup environment variables (PORT, DB_URL, JWT_SECRET)
+  - type: checkboxes
+    id: system
+    attributes:
+      label: System Setup
+      options:
+        - label: Setup Express app
+        - label: Setup MongoDB connection using Mongoose
+        - label: Setup environment variables (PORT, DB_URL, JWT_SECRET)
 
-      Bonus:
-      - [ ] Rate limiting
+  - type: checkboxes
+    id: bonus
+    attributes:
+      label: Bonus Features
+      description: Optional advanced features
+      options:
+        - label: Rate limiting (prevent abuse)
+        - label: Logging system (track user actions)

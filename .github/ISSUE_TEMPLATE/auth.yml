@@ -1,13 +1,13 @@
 name: Auth and User Module
-description: Handle authentication and user logic
+description: User management and authentication system
 title: "[AUTH] "
 labels: ["auth"]
 
 body:
   - type: checkboxes
-    id: tasks
+    id: user
     attributes:
-      label: Tasks
+      label: User Module
       options:
         - label: Create User schema and model
         - label: Register user endpoint
@@ -15,5 +15,12 @@ body:
         - label: Hash password using bcryptjs
         - label: Generate JWT token
         - label: Define roles (admin, user)
+
+  - type: checkboxes
+    id: auth
+    attributes:
+      label: Authentication and Authorization
+      options:
         - label: Protect routes using JWT
-        - label: Role-based access control
+        - label: Only authenticated users can access protected routes
+        - label: Role-based access control (Admin full CRUD / User read only)

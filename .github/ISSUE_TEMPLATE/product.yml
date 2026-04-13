@@ -1,18 +1,27 @@
 name: Product Module
+description: Product management system
 title: "[PRODUCT] "
 labels: ["product"]
-body:
-  - type: markdown
-    value: |
-      Product Module:
-      - [ ] Create Product schema and model
-      - [ ] GET all products
-      - [ ] GET single product
-      - [ ] POST create product (admin only)
-      - [ ] PUT or PATCH update product (admin only)
-      - [ ] DELETE product (admin only)
 
-      Bonus:
-      - [ ] Pagination
-      - [ ] Search and filtering
-      - [ ] Sorting
+body:
+  - type: checkboxes
+    id: core
+    attributes:
+      label: Core API Requirements
+      options:
+        - label: Create Product schema and model
+        - label: GET all products
+        - label: GET single product
+        - label: POST create product (admin only)
+        - label: PUT/PATCH update product (admin only)
+        - label: DELETE product (admin only)
+
+  - type: checkboxes
+    id: bonus
+    attributes:
+      label: Bonus Features
+      description: Optional features (recommended for higher evaluation)
+      options:
+        - label: Pagination
+        - label: Search / Filtering
+        - label: Sorting
