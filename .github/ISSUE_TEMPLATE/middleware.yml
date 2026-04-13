@@ -1,0 +1,19 @@
+name: Middleware and System Configuration
+title: "[MIDDLEWARE] "
+labels: ["middleware"]
+body:
+  - type: markdown
+    value: |
+      Middleware:
+      - [ ] Authentication middleware (verify JWT)
+      - [ ] Role middleware (admin/user)
+      - [ ] Error handling middleware
+      - [ ] Logger (morgan)
+
+      System Setup:
+      - [ ] Setup Express app
+      - [ ] Setup MongoDB connection using Mongoose
+      - [ ] Setup environment variables (PORT, DB_URL, JWT_SECRET)
+
+      Bonus:
+      - [ ] Rate limiting

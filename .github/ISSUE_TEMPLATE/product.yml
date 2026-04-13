@@ -1,0 +1,18 @@
+name: Product Module
+title: "[PRODUCT] "
+labels: ["product"]
+body:
+  - type: markdown
+    value: |
+      Product Module:
+      - [ ] Create Product schema and model
+      - [ ] GET all products
+      - [ ] GET single product
+      - [ ] POST create product (admin only)
+      - [ ] PUT or PATCH update product (admin only)
+      - [ ] DELETE product (admin only)
+
+      Bonus:
+      - [ ] Pagination
+      - [ ] Search and filtering
+      - [ ] Sorting

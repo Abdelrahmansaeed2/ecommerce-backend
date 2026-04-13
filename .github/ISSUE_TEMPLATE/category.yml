@@ -1,0 +1,16 @@
+name: Category Module
+title: "[CATEGORY] "
+labels: ["category"]
+body:
+  - type: markdown
+    value: |
+      Category Module:
+      - [ ] Create Category schema and model
+      - [ ] GET all categories
+      - [ ] GET single category
+      - [ ] POST create category (admin only)
+      - [ ] PUT or PATCH update category (admin only)
+      - [ ] DELETE category (admin only)
+
+      Relationships:
+      - [ ] Link products to categories

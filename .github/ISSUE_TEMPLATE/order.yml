@@ -1,0 +1,16 @@
+name: Order Module
+title: "[ORDER] "
+labels: ["order"]
+body:
+  - type: markdown
+    value: |
+      Order Module:
+      - [ ] Create Order schema and model
+      - [ ] Create order endpoint
+      - [ ] GET all orders (admin)
+      - [ ] GET user orders
+      - [ ] Calculate total price
+
+      Relationships:
+      - [ ] Link order to user
+      - [ ] Link order to products

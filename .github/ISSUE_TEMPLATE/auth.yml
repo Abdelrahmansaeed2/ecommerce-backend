@@ -1,0 +1,17 @@
+name: Auth and User Module
+title: "[AUTH] "
+labels: ["auth"]
+body:
+  - type: markdown
+    value: |
+      User Module:
+      - [ ] Create User schema and model
+      - [ ] Register user endpoint
+      - [ ] Login user endpoint
+      - [ ] Hash password using bcryptjs
+      - [ ] Generate JWT token
+      - [ ] Define roles (admin, user)
+
+      Authentication and Authorization:
+      - [ ] Protect routes using JWT
+      - [ ] Restrict access based on role (admin full access, user read only)

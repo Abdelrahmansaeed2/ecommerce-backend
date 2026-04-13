@@ -1,0 +1,16 @@
+name: Create Branch Per Module
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create branch from label
+        uses: peterjgrainger/action-create-branch@v2.3.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: feature/${{ github.event.issue.labels[0].name }}
