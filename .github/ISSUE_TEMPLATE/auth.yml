@@ -4,6 +4,11 @@ title: "[AUTH] "
 labels: ["auth"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Select one or more tasks.
+
   - type: checkboxes
     id: user
     attributes:
@@ -19,7 +24,7 @@ body:
   - type: checkboxes
     id: auth
     attributes:
-      label: Authentication and Authorization
+      label: Authentication & Authorization
       options:
         - label: Protect routes using JWT
         - label: Only authenticated users can access protected routes

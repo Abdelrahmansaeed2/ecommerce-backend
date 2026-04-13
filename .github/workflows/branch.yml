@@ -1,4 +1,4 @@
-name: Create Branch Per Module
+name: Create Branch Per Developer
 
 on:
   issues:
@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create branch from label
+      - name: Create unique branch
         uses: peterjgrainger/action-create-branch@v2.3.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: feature/${{ github.event.issue.labels[0].name }}
+          branch: feature/${{ github.event.issue.labels[0].name }}-${{ github.actor }}

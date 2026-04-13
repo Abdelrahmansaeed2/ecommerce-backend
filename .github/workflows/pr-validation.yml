@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check PR linked to issue
+      - name: Check issue link
         run: |
           BODY="${{ github.event.pull_request.body }}"
           if [[ "$BODY" != *"Closes #"* ]]; then
-            echo "Pull request must reference an issue"
+            echo "PR must reference an issue"
             exit 1
           fi

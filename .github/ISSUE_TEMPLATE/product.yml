@@ -4,10 +4,15 @@ title: "[PRODUCT] "
 labels: ["product"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Select one or more tasks.
+
   - type: checkboxes
     id: core
     attributes:
-      label: Core API Requirements
+      label: Core API
       options:
         - label: Create Product schema and model
         - label: GET all products
@@ -19,8 +24,7 @@ body:
   - type: checkboxes
     id: bonus
     attributes:
-      label: Bonus Features
-      description: Optional features (recommended for higher evaluation)
+      label: Bonus Features (optional)
       options:
         - label: Pagination
         - label: Search / Filtering

@@ -4,6 +4,11 @@ title: "[MIDDLEWARE] "
 labels: ["middleware"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Select one or more tasks.
+
   - type: checkboxes
     id: middleware
     attributes:
@@ -21,13 +26,12 @@ body:
       options:
         - label: Setup Express app
         - label: Setup MongoDB connection using Mongoose
-        - label: Setup environment variables (PORT, DB_URL, JWT_SECRET)
+        - label: Setup environment variables
 
   - type: checkboxes
     id: bonus
     attributes:
       label: Bonus Features
-      description: Optional advanced features
       options:
-        - label: Rate limiting (prevent abuse)
-        - label: Logging system (track user actions)
+        - label: Rate limiting
+        - label: Logging system

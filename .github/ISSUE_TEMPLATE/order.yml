@@ -4,10 +4,15 @@ title: "[ORDER] "
 labels: ["order"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Select one or more tasks.
+
   - type: checkboxes
     id: core
     attributes:
-      label: Core API Requirements
+      label: Core API
       options:
         - label: Create Order schema and model
         - label: Create order endpoint

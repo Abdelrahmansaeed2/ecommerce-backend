@@ -4,10 +4,15 @@ title: "[CATEGORY] "
 labels: ["category"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Select one or more tasks.
+
   - type: checkboxes
     id: core
     attributes:
-      label: Core API Requirements
+      label: Core API
       options:
         - label: Create Category schema and model
         - label: GET all categories

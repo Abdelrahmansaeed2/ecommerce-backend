@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check checklist exists
+      - name: Check checklist
         run: |
           BODY="${{ github.event.issue.body }}"
           if [[ "$BODY" != *"- [ ]"* ]]; then
