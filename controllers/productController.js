@@ -83,7 +83,11 @@ const editProduct = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
   try {
-    const product = await productModel.findByIdAndUpdate(req.params.id, req.body, {
+    const { name, price, category, description, status } = req.body;
+    if (!name || price === undefined || !category) {
+      throw createError("name, price and category are required", 400);
+    }
+    const product = await productModel.findByIdAndUpdate(req.params.id, { name, price, category, description, status }, {
       new: true,
       runValidators: true,
       overwrite: true,
