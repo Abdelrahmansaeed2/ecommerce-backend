@@ -18,4 +18,16 @@ const updateProduct = async (req, res, next) => {
 
 };
 
-const deleteProduct = async (req, res, next)
+const deleteProduct = async (req, res, next) => {
+
+}
+
+
+export {
+    getAllProducts,
+    getProduct,
+    createProduct,
+    editProduct,
+    updateProduct,
+    deleteProduct
+}
