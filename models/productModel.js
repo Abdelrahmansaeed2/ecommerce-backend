@@ -1,6 +1,6 @@
-const { Schema, default: mongoose } = require("mongoose");
+import mongoose from "mongoose";
 
-const productSchema = new Schema(
+const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -11,20 +11,20 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
-    category : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "Category",
-        required : true
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
     },
-    description : {
-        type : String,
-        maxlength : [100, "the description must be below 100 characters"] 
+    description: {
+      type: String,
+      maxlength: [100, "the description must be below 100 characters"],
     },
-    status : {
-        type : String,
-        enum : ["active", "discount", "sold out"],
-        default : "active"
-    }
+    status: {
+      type: String,
+      enum: ["active", "discount", "sold out"],
+      default: "active",
+    },
   },
   {
     timestamps: true,
