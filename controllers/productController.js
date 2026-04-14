@@ -1,5 +1,5 @@
-import productModel from "../models/productModel.js";
-import { createError } from "../utils/error.js";
+const productModel = require("../models/productModel");
+const { createError } = require("../utils/error");
 
 const getAllProducts = async (req, res, next) => {
   try {
@@ -113,4 +113,4 @@ const deleteProduct = async (req, res, next) => {
   }
 };
 
-export { getAllProducts, getProduct, createProduct, editProduct, updateProduct, deleteProduct };
+module.exports = { getAllProducts, getProduct, createProduct, editProduct, updateProduct, deleteProduct };
