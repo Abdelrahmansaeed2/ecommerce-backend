@@ -3,7 +3,7 @@ const { createError } = require("../utils/error");
 
 const getAllProducts = async (req, res, next) => {
   try {
-    const { search, category, status, minPrice, maxPrice } = req.query;
+    const { search, category, status, minPrice, maxPrice, sort, order, page, limit } = req.query;
     const filters = {};
     if (search) {
       filters.$or = [
@@ -28,11 +28,38 @@ const getAllProducts = async (req, res, next) => {
         filters.price.$lte = max;
       }
     }
-    const products = await productModel.find(filters);
-    if (!products || products.length === 0) {
-      return res.status(200).json({ message: "no data found", data: [] });
+
+    const sortOptions = {};
+    if (sort) {
+      sortOptions[sort] = order === "desc" ? -1 : 1;
+    } else {
+      sortOptions.createdAt = -1;
     }
-    return res.status(200).json({ message: "data retrieved successfully", data: products });
+
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const total = await productModel.countDocuments(filters);
+
+    const products = await productModel.find(filters)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limitNumber)
+      .populate("category");
+
+    if (!products || products.length === 0) {
+      return res.status(200).json({
+        message: "no data found",
+        data: [],
+        pagination: { total, page: pageNumber, limit: limitNumber }
+      });
+    }
+    return res.status(200).json({
+      message: "data retrieved successfully",
+      data: products,
+      pagination: { total, page: pageNumber, limit: limitNumber }
+    });
   } catch (err) {
     next(err);
   }
@@ -40,7 +67,7 @@ const getAllProducts = async (req, res, next) => {
 
 const getProduct = async (req, res, next) => {
   try {
-    const product = await productModel.findById(req.params.id);
+    const product = await productModel.findById(req.params.id).populate("category");
     if (!product) {
       throw createError("Product not found", 404);
     }
