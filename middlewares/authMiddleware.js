@@ -1,6 +1,39 @@
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 
-const protect = (req, res, next) => {
+// const protect = (req, res, next) => {
+//   let token;
+
+//   if (req.headers.authorization?.startsWith("Bearer")) {
+//     try {
+//       token = req.headers.authorization.split(" ")[1];
+
+//       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+//       req.user = decoded;
+
+//       next();
+//     } catch (error) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Token invalid",
+//       });
+//     }
+//   }
+
+//   if (!token) {
+//     return res.status(401).json({
+//       success: false,
+//       message: "No token provided",
+//     });
+//   }
+// };
+
+// module.exports = protect;
+
+
+import jwt from "jsonwebtoken";
+
+export const protect = (req, res, next) => {
   let token;
 
   if (req.headers.authorization?.startsWith("Bearer")) {
@@ -11,7 +44,7 @@ const protect = (req, res, next) => {
 
       req.user = decoded;
 
-      next();
+      return next();
     } catch (error) {
       return res.status(401).json({
         success: false,
@@ -20,12 +53,8 @@ const protect = (req, res, next) => {
     }
   }
 
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: "No token provided",
-    });
-  }
+  return res.status(401).json({
+    success: false,
+    message: "No token provided",
+  });
 };
-
-module.exports = protect;
