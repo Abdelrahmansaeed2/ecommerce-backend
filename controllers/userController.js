@@ -42,21 +42,24 @@ export const loginUser = async (req,res,next) => {
             throw createError("Email and/or password are missing",400);
         }
 
-        const exists = await User.findOne({ email: email}).select("-password");
+        const exists = await User.findOne({ email: email});
 
         if(!exists){
             throw createError("Email doesn't exist",400);
         }
 
-        if(!exists.checkPassword(password)){
+        const isPasswordValid = await exists.checkPassword(password);
+        if(!isPasswordValid){
             throw createError("incorrect password",400);
         }
 
         const token = generateToken(exists.email, exists.role);
+        const userData = exists.toObject();
+        delete userData.password;
         
         return res.status(200).json({
             message:"Login Successful",
-            data: exists,
+            data: userData,
             token: token 
         })
     }

@@ -7,6 +7,7 @@ const app = express();
 
 // body parser
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // logger
 app.use(morgan("dev"));
