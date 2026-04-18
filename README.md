@@ -443,11 +443,3 @@ Standard error response:
 
 ---
 
-# Status
-
-```text id="status1"
-✔ Fully Functional Backend
-✔ Clean Architecture (MVC)
-✔ Secure & Scalable
-✔ Production Ready 
-```
