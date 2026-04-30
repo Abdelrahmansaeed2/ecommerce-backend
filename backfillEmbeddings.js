@@ -12,7 +12,7 @@ const openai = new OpenAI({
 const BATCH_SIZE = 50; // Process 50 products at a time
 
 const backfillEmbeddings = async () => {
-  console.log("🚀 Starting backfill process for product embeddings...");
+  console.log("  Starting backfill process for product embeddings...");
 
   if (!process.env.MONGO_URI || !process.env.OPENAI_API_KEY) {
     console.error(
@@ -22,14 +22,14 @@ const backfillEmbeddings = async () => {
   }
 
   await mongoose.connect(process.env.MONGO_URI);
-  console.log("✅ MongoDB connected.");
+  console.log("  MongoDB connected.");
 
   const totalDocs = await Product.countDocuments({
     description_embedding: { $exists: false },
   });
   if (totalDocs === 0) {
     console.log(
-      "✅ No products found needing embeddings. All documents are up to date.",
+      "  No products found needing embeddings. All documents are up to date.",
     );
     await mongoose.disconnect();
     return;
@@ -76,7 +76,7 @@ const backfillEmbeddings = async () => {
       await Product.bulkWrite(bulkOps);
       processedCount += productsToUpdate.length;
       console.log(
-        `  ✅ Batch successful. ${processedCount}/${totalDocs} products updated.`,
+        `    Batch successful. ${processedCount}/${totalDocs} products updated.`,
       );
     } catch (error) {
       console.error(" Error processing batch with OpenAI or database:", error);

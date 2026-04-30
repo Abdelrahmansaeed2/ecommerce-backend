@@ -8,27 +8,26 @@ const swagger = {
   openapi: "3.0.0",
   info: {
     title: "E-Commerce API",
-    version: "1.0.0"
+    version: "1.0.0",
   },
   servers: [{ url: "http://localhost:5000/api" }],
   components: {
     securitySchemes: {
       bearerAuth: {
         type: "http",
-        scheme: "bearer"
-      }
+        scheme: "bearer",
+      },
     },
-    schemas: {}
+    schemas: {},
   },
-  paths: {}
+  paths: {},
 };
 
 //////////////////////////////////////////////////
 // 🧠 CLEAN FILES
 //////////////////////////////////////////////////
 
-const validModelFile = (file) =>
-  file.endsWith("Model.js");
+const validModelFile = (file) => file.endsWith("Model.js");
 
 //////////////////////////////////////////////////
 // 🧠 TYPE DETECTION
@@ -49,57 +48,52 @@ const detectType = (text) => {
 const parseModels = () => {
   const files = fs.readdirSync(MODELS_DIR);
 
-  files
-    .filter(validModelFile)
-    .forEach((file) => {
-      const content = fs.readFileSync(
-        path.join(MODELS_DIR, file),
-        "utf-8"
-      );
+  files.filter(validModelFile).forEach((file) => {
+    const content = fs.readFileSync(path.join(MODELS_DIR, file), "utf-8");
 
-      const name = file.replace("Model.js", "");
+    const name = file.replace("Model.js", "");
 
-      const schema = {
-        type: "object",
-        properties: {}
-      };
+    const schema = {
+      type: "object",
+      properties: {},
+    };
 
-      // 🧠 detect fields (better regex)
-      const regex = /(\w+):\s*({[^}]+}|\[[^\]]+\])/g;
+    // 🧠 detect fields (better regex)
+    const regex = /(\w+):\s*({[^}]+}|\[[^\]]+\])/g;
 
-      let match;
-      while ((match = regex.exec(content))) {
-        const field = match[1];
-        const value = match[2];
+    let match;
+    while ((match = regex.exec(content))) {
+      const field = match[1];
+      const value = match[2];
 
-        // 🔥 ARRAY
-        if (value.startsWith("[")) {
+      // 🔥 ARRAY
+      if (value.startsWith("[")) {
+        schema.properties[field] = {
+          type: "array",
+          items: { type: "object" },
+        };
+        continue;
+      }
+
+      // 🔥 RELATION
+      if (value.includes("ref")) {
+        const ref = value.match(/ref:\s*["'`](\w+)["'`]/);
+        if (ref) {
           schema.properties[field] = {
-            type: "array",
-            items: { type: "object" }
+            $ref: `#/components/schemas/${ref[1]}`,
           };
           continue;
         }
-
-        // 🔥 RELATION
-        if (value.includes("ref")) {
-          const ref = value.match(/ref:\s*["'`](\w+)["'`]/);
-          if (ref) {
-            schema.properties[field] = {
-              $ref: `#/components/schemas/${ref[1]}`
-            };
-            continue;
-          }
-        }
-
-        // 🔥 NORMAL TYPE
-        schema.properties[field] = {
-          type: detectType(value)
-        };
       }
 
-      swagger.components.schemas[name] = schema;
-    });
+      // 🔥 NORMAL TYPE
+      schema.properties[field] = {
+        type: detectType(value),
+      };
+    }
+
+    swagger.components.schemas[name] = schema;
+  });
 };
 
 //////////////////////////////////////////////////
@@ -110,15 +104,11 @@ const parseRoutes = () => {
   const files = fs.readdirSync(ROUTES_DIR);
 
   files.forEach((file) => {
-    const content = fs.readFileSync(
-      path.join(ROUTES_DIR, file),
-      "utf-8"
-    );
+    const content = fs.readFileSync(path.join(ROUTES_DIR, file), "utf-8");
 
     const base = file.replace("Routes.js", "");
 
-    const regex =
-      /router\.(get|post|put|patch|delete)\(["'`](.*?)["'`]/g;
+    const regex = /router\.(get|post|put|patch|delete)\(["'`](.*?)["'`]/g;
 
     let match;
     while ((match = regex.exec(content))) {
@@ -133,8 +123,7 @@ const parseRoutes = () => {
       }
 
       const secure =
-        content.includes("protect") ||
-        content.includes("authorize");
+        content.includes("protect") || content.includes("authorize");
 
       swagger.paths[pathUrl][method] = {
         tags: [base],
@@ -146,8 +135,8 @@ const parseRoutes = () => {
                 name: "id",
                 in: "path",
                 required: true,
-                schema: { type: "string" }
-              }
+                schema: { type: "string" },
+              },
             ]
           : [],
         requestBody:
@@ -156,32 +145,29 @@ const parseRoutes = () => {
                 content: {
                   "application/json": {
                     schema: {
-                      $ref: `#/components/schemas/${base}`
-                    }
-                  }
-                }
+                      $ref: `#/components/schemas/${base}`,
+                    },
+                  },
+                },
               }
             : undefined,
         responses: {
           200: {
-            description: "Success"
-          }
-        }
+            description: "Success",
+          },
+        },
       };
     }
   });
 };
 
 //////////////////////////////////////////////////
-// 🚀 RUN
+//   RUN
 //////////////////////////////////////////////////
 
 parseModels();
 parseRoutes();
 
-fs.writeFileSync(
-  "swagger-fixed.json",
-  JSON.stringify(swagger, null, 2)
-);
+fs.writeFileSync("swagger-fixed.json", JSON.stringify(swagger, null, 2));
 
-console.log("✅ Fixed Swagger Generated");
+console.log("  Fixed Swagger Generated");

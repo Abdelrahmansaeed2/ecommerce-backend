@@ -7,7 +7,7 @@ const logger = require("./config/logger");
 const { initializeSocket } = require("./socket.js");
 
 //////////////////////////////////////////////////
-// 🚀 Start Server
+//   Start Server
 //////////////////////////////////////////////////
 
 const startServer = async () => {
@@ -16,10 +16,10 @@ const startServer = async () => {
     // 🗄 Connect DB
     //////////////////////////////////////////////////
     await connectDB();
-    logger.info("✅ MongoDB connected");
+    logger.info("  MongoDB connected");
 
     //////////////////////////////////////////////////
-    // 🚀 Start Server
+    //   Start Server
     //////////////////////////////////////////////////
     const PORT = process.env.PORT || 5000;
 
@@ -34,7 +34,7 @@ const startServer = async () => {
     initializeSocket(io);
 
     const server = httpServer.listen(PORT, () => {
-      logger.info(`🚀 Server running on port ${PORT}`);
+      logger.info(`  Server running on port ${PORT}`);
       logger.info(`🔌 Socket.IO server initialized`);
     });
 

@@ -184,7 +184,7 @@ const enhanceSchemas = () => {
 };
 
 //////////////////////////////////////////////////
-// 🚀 BUILD SWAGGER
+//   BUILD SWAGGER
 //////////////////////////////////////////////////
 
 loadModels();
@@ -196,4 +196,4 @@ fs.writeFileSync(
   JSON.stringify(swagger, null, 2),
 );
 
-console.log("🚀 Enterprise Swagger Generated!");
+console.log("  Enterprise Swagger Generated!");
