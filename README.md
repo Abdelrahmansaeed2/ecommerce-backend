@@ -1,4 +1,4 @@
-# Enterprise E-Commerce Backend
+# E-Commerce Backend
 
 This is a robust, scalable, and production-ready backend for a modern e-commerce platform, built with Node.js, Express, and MongoDB. It follows a clean, service-oriented architecture and includes a wide range of advanced, enterprise-grade features.
 
