@@ -48,7 +48,7 @@ This is a robust, scalable, and production-ready backend for a modern e-commerce
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone <(https://github.com/Abdelrahmansaeed2/ecommerce-backend.git)>
 cd ecommerce-backend
 ```
 
