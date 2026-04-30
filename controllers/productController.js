@@ -1,143 +1,80 @@
-const productModel = require("../models/productModel");
-const { createError } = require("../utils/error");
+const Product = require("../models/productModel");
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
+const APIFeatures = require("../utils/apiFeatures");
 
-const getAllProducts = async (req, res, next) => {
-  try {
-    const { search, category, status, minPrice, maxPrice, sort, order, page, limit } = req.query;
-    const filters = {};
-    if (search) {
-      filters.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
-    }
-    if (category) {
-      filters.category = category;
-    }
-    if (status) {
-      filters.status = status;
-    }
-    if (minPrice || maxPrice) {
-      filters.price = {};
-      const min = Number(minPrice);
-      const max = Number(maxPrice);
-      if (!Number.isNaN(min) && minPrice !== undefined) {
-        filters.price.$gte = min;
-      }
-      if (!Number.isNaN(max) && maxPrice !== undefined) {
-        filters.price.$lte = max;
-      }
-    }
+exports.createProduct = catchAsync(async (req, res, next) => {
+  const newProduct = await Product.create(req.body);
 
-    const sortOptions = {};
-    if (sort) {
-      sortOptions[sort] = order === "desc" ? -1 : 1;
-    } else {
-      sortOptions.createdAt = -1;
-    }
+  res.status(201).json({
+    success: true,
+    data: {
+      product: newProduct,
+    },
+  });
+});
 
-    const pageNumber = parseInt(page, 10) || 1;
-    const limitNumber = parseInt(limit, 10) || 10;
-    const skip = (pageNumber - 1) * limitNumber;
+exports.getAllProducts = catchAsync(async (req, res, next) => {
+  // Execute Query
+  const features = new APIFeatures(Product.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
 
-    const total = await productModel.countDocuments(filters);
+  const products = await features.query;
 
-    const products = await productModel.find(filters)
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(limitNumber)
-      .populate("category");
+  res.status(200).json({
+    success: true,
+    results: products.length,
+    data: {
+      products,
+    },
+  });
+});
 
-    if (!products || products.length === 0) {
-      return res.status(200).json({
-        message: "no data found",
-        data: [],
-        pagination: { total, page: pageNumber, limit: limitNumber }
-      });
-    }
-    return res.status(200).json({
-      message: "data retrieved successfully",
-      data: products,
-      pagination: { total, page: pageNumber, limit: limitNumber }
-    });
-  } catch (err) {
-    next(err);
+exports.getProduct = catchAsync(async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    return next(new AppError("No product found with that ID", 404));
   }
-};
 
-const getProduct = async (req, res, next) => {
-  try {
-    const product = await productModel.findById(req.params.id).populate("category");
-    if (!product) {
-      throw createError("Product not found", 404);
-    }
-    return res.status(200).json({ message: "product retrieved successfully", data: product });
-  } catch (err) {
-    next(err);
+  res.status(200).json({
+    success: true,
+    data: {
+      product,
+    },
+  });
+});
+
+exports.updateProduct = catchAsync(async (req, res, next) => {
+  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!product) {
+    return next(new AppError("No product found with that ID", 404));
   }
-};
 
-const createProduct = async (req, res, next) => {
-  try {
-    const { name, price, category, description, status } = req.body;
-    if (!name || price === undefined || !category) {
-      throw createError("name, price and category are required", 400);
-    }
-    const newProduct = await productModel.create({ name, price, category, description, status });
-    if (!newProduct) {
-      throw createError("failed to create product", 500);
-    }
-    return res.status(201).json({ message: "product created successfully", data: newProduct });
-  } catch (err) {
-    next(err);
+  res.status(200).json({
+    success: true,
+    data: {
+      product,
+    },
+  });
+});
+
+exports.deleteProduct = catchAsync(async (req, res, next) => {
+  const product = await Product.findByIdAndDelete(req.params.id);
+
+  if (!product) {
+    return next(new AppError("No product found with that ID", 404));
   }
-};
 
-const editProduct = async (req, res, next) => {
-  try {
-    const product = await productModel.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!product) {
-      throw createError("Product not found", 404);
-    }
-    return res.status(200).json({ message: "product updated successfully", data: product });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const updateProduct = async (req, res, next) => {
-  try {
-    const { name, price, category, description, status } = req.body;
-    if (!name || price === undefined || !category) {
-      throw createError("name, price and category are required", 400);
-    }
-    const product = await productModel.findByIdAndUpdate(req.params.id, { name, price, category, description, status }, {
-      new: true,
-      runValidators: true,
-      overwrite: true,
-    });
-    if (!product) {
-      throw createError("Product not found", 404);
-    }
-    return res.status(200).json({ message: "product updated successfully", data: product });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const deleteProduct = async (req, res, next) => {
-  try {
-    const product = await productModel.findByIdAndDelete(req.params.id);
-    if (!product) {
-      throw createError("Product not found", 404);
-    }
-    return res.status(200).json({ message: "product deleted successfully", data: product });
-  } catch (err) {
-    next(err);
-  }
-};
-
-module.exports = { getAllProducts, getProduct, createProduct, editProduct, updateProduct, deleteProduct };
+  res.status(204).json({
+    success: true,
+    data: null,
+  });
+});

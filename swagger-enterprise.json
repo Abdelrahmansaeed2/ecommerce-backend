@@ -3,16 +3,11 @@
   "info": {
     "title": "E-Commerce API",
     "version": "1.0.0",
-    "description": "Complete E-Commerce API with JWT authentication, role-based access, categories, products, and orders."
+    "description": "Enterprise Auto Generated Swagger"
   },
   "servers": [
     {
-      "url": "http://localhost:5001/api",
-      "description": "Development server"
-    },
-    {
-      "url": "https://api.ecommerce.com/api",
-      "description": "Production server"
+      "url": "http://localhost:5000/api"
     }
   ],
   "components": {
@@ -24,694 +19,1846 @@
       }
     },
     "schemas": {
-      "Error": {
-        "type": "object",
-        "properties": {
-          "message": { "type": "string" },
-          "error": { "type": "string" },
-          "statusCode": { "type": "number" }
-        }
-      },
       "User": {
         "type": "object",
-        "required": ["username", "email", "password"],
         "properties": {
-          "_id": { "type": "string", "example": "60d21b4667d0d8992e610c85" },
-          "username": { "type": "string", "example": "john_doe" },
-          "email": { "type": "string", "example": "john@example.com" },
-          "password": { "type": "string", "format": "password", "example": "strongP@ss123" },
-          "role": { "type": "string", "enum": ["user", "admin"], "default": "user", "example": "user" }
-        }
-      },
-      "UserResponse": {
-        "type": "object",
-        "properties": {
-          "_id": { "type": "string" },
-          "username": { "type": "string" },
-          "email": { "type": "string" },
-          "role": { "type": "string" }
-        }
-      },
-      "Login": {
-        "type": "object",
-        "required": ["email", "password"],
-        "properties": {
-          "email": { "type": "string", "example": "john@example.com" },
-          "password": { "type": "string", "format": "password", "example": "strongP@ss123" }
-        }
-      },
-      "LoginResponse": {
-        "type": "object",
-        "properties": {
-          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
-          "user": { "$ref": "#/components/schemas/UserResponse" }
-        }
-      },
-      "Category": {
-        "type": "object",
-        "required": ["name"],
-        "properties": {
-          "_id": { "type": "string", "example": "60d21b4667d0d8992e610c90" },
-          "name": { "type": "string", "example": "Electronics" },
-          "description": { "type": "string", "example": "Gadgets, devices, and tech accessories" },
-          "image": { "type": "string", "example": "https://example.com/images/electronics.jpg" },
-          "status": { "type": "string", "enum": ["active", "inactive"], "default": "active", "example": "active" }
-        }
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "passwordConfirm": {
+            "type": "string"
+          },
+          "passwordChangedAt": {
+            "type": "string"
+          },
+          "passwordResetToken": {
+            "type": "string"
+          },
+          "passwordResetExpires": {
+            "type": "string"
+          },
+          "wishlist": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          },
+          "address": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "passwordConfirm"
+        ]
       },
       "Product": {
         "type": "object",
-        "required": ["name", "price", "category"],
         "properties": {
-          "_id": { "type": "string", "example": "60d21b4667d0d8992e610c95" },
-          "name": { "type": "string", "example": "Wireless Headphones" },
-          "price": { "type": "number", "example": 99.99 },
-          "category": { "type": "string", "example": "60d21b4667d0d8992e610c90" },
-          "description": { "type": "string", "example": "Noise-cancelling over-ear headphones" },
-          "status": { "type": "string", "enum": ["active", "inactive"], "default": "active", "example": "active" },
-          "image": { "type": "string", "example": "https://example.com/images/headphones.jpg" },
-          "stock": { "type": "integer", "example": 50 }
-        }
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "description_embedding": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "price": {
+            "type": "number"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "category": {
+            "type": "string"
+          },
+          "stock": {
+            "type": "number"
+          },
+          "sold": {
+            "type": "number"
+          },
+          "ratingsAverage": {
+            "type": "number"
+          },
+          "ratingsQuantity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "price",
+          "category",
+          "stock"
+        ]
       },
-      "Order": {
+      "Review": {
         "type": "object",
-        "required": ["items", "shippingAddress", "paymentMethod"],
         "properties": {
-          "_id": { "type": "string", "example": "60d21b4667d0d8992e610ca0" },
-          "user": { "type": "string", "example": "60d21b4667d0d8992e610c85" },
-          "userEmail": { "type": "string", "example": "john@example.com" },
-          "items": {
+          "review": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "product": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "review",
+          "rating",
+          "product",
+          "user"
+        ]
+      },
+      "Cart": {
+        "type": "object",
+        "properties": {
+          "products": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["product", "quantity"],
               "properties": {
-                "product": { "type": "string", "example": "60d21b4667d0d8992e610c95" },
-                "name": { "type": "string", "example": "Wireless Headphones" },
-                "quantity": { "type": "number", "example": 2 },
-                "price": { "type": "number", "example": 99.99 }
+                "product": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "count": {
+                  "type": "number"
+                },
+                "price": {
+                  "type": "number"
+                }
               }
             }
           },
-          "shippingAddress": {
-            "type": "object",
-            "required": ["fullName", "phone", "addressLine", "city", "country"],
-            "properties": {
-              "fullName": { "type": "string", "example": "John Doe" },
-              "phone": { "type": "string", "example": "+1234567890" },
-              "addressLine": { "type": "string", "example": "123 Main St" },
-              "city": { "type": "string", "example": "New York" },
-              "country": { "type": "string", "example": "USA" }
-            }
+          "cartTotal": {
+            "type": "number"
           },
-          "paymentMethod": { "type": "string", "enum": ["credit_card", "paypal", "cash_on_delivery"], "example": "credit_card" },
-          "notes": { "type": "string", "example": "Leave at the front door" },
-          "totalPrice": { "type": "number", "example": 199.98 },
-          "status": { 
-            "type": "string", 
-            "enum": ["pending", "processing", "shipped", "delivered", "cancelled"],
-            "default": "pending",
-            "example": "pending"
+          "totalAfterDiscount": {
+            "type": "number"
+          },
+          "orderedBy": {
+            "type": "string",
+            "format": "uuid"
           }
-        }
+        },
+        "required": []
       },
-      "Pagination": {
+      "Order": {
         "type": "object",
         "properties": {
-          "total": { "type": "number", "example": 100 },
-          "page": { "type": "number", "example": 1 },
-          "limit": { "type": "number", "example": 10 },
-          "pages": { "type": "number", "example": 10 }
-        }
-      }
-    },
-    "responses": {
-      "UnauthorizedError": {
-        "description": "Authentication information is missing or invalid",
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/Error" },
-            "example": { "message": "No token provided", "error": "Unauthorized", "statusCode": 401 }
+          "products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "product": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "count": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "paymentResult": {
+            "type": "object",
+            "properties": {
+              "provider": { "type": "string" },
+              "id": { "type": "string" },
+              "status": { "type": "string" },
+              "update_time": { "type": "string" },
+              "email_address": { "type": "string" }
+            }
+          },
+          "paymentMethod": {
+            "type": "string"
+          },
+          "orderStatus": {
+            "type": "string"
+          },
+          "orderedBy": {
+            "type": "string",
+            "format": "uuid"
           }
-        }
+        },
+        "required": [
+          "paymentMethod"
+        ]
       },
-      "ForbiddenError": {
-        "description": "Insufficient permissions",
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/Error" },
-            "example": { "message": "Access denied. Admin role required.", "error": "Forbidden", "statusCode": 403 }
+      "Coupon": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "expiry": {
+            "type": "string"
+          },
+          "discount": {
+            "type": "number"
           }
-        }
+        },
+        "required": [
+          "name",
+          "expiry",
+          "discount"
+        ]
       },
-      "NotFoundError": {
-        "description": "Resource not found",
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/Error" },
-            "example": { "message": "Resource not found", "error": "Not Found", "statusCode": 404 }
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "type": "string"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "link": {
+            "type": "string"
           }
-        }
-      },
-      "ValidationError": {
-        "description": "Validation error",
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/Error" },
-            "example": { "message": "Validation failed", "error": "Bad Request", "statusCode": 400 }
-          }
-        }
+        },
+        "required": [
+          "user",
+          "message"
+        ]
       }
     }
   },
-  "security": [{ "bearerAuth": [] }],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
   "paths": {
-    "/auth/register": {
+    "/api/v1/auth/signup": {
       "post": {
-        "tags": ["Auth"],
-        "summary": "Register user",
-        "description": "Creates a new user account with 'user' role by default",
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/User" }
-            }
-          }
-        },
-        "responses": {
-          "201": { 
-            "description": "User registered successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/UserResponse" },
-                "example": {
-                  "_id": "60d21b4667d0d8992e610c85",
-                  "username": "john_doe",
-                  "email": "john@example.com",
-                  "role": "user"
-                }
-              }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" }
-        }
-      }
-    },
-    "/auth/login": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Login user",
-        "description": "Authenticates user and returns JWT token",
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Login" }
-            }
-          }
-        },
-        "responses": {
-          "200": { 
-            "description": "Login successful",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
-              }
-            }
-          },
-          "401": { 
-            "description": "Invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" },
-                "example": { "message": "Invalid email or password", "statusCode": 401 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/products": {
-      "get": {
-        "tags": ["Product"],
-        "summary": "Get All Products (Filter + Pagination)",
-        "security": [],
-        "parameters": [
-          { "name": "search", "in": "query", "schema": { "type": "string" }, "description": "Search by product name" },
-          { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category ID" },
-          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["active", "inactive"] } },
-          { "name": "minPrice", "in": "query", "schema": { "type": "number" } },
-          { "name": "maxPrice", "in": "query", "schema": { "type": "number" } },
-          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["name", "price", "createdAt"] }, "description": "Field to sort by" },
-          { "name": "order", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"] }, "description": "Sort order" },
-          { "name": "page", "in": "query", "schema": { "type": "number", "minimum": 1, "default": 1 } },
-          { "name": "limit", "in": "query", "schema": { "type": "number", "minimum": 1, "maximum": 100, "default": 10 } }
+        "tags": [
+          "auth"
         ],
+        "summary": "POST /signup",
+        "security": [],
         "responses": {
           "200": {
-            "description": "Products fetched successfully",
+            "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" },
-                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Product" } },
-                    "pagination": { "$ref": "#/components/schemas/Pagination" }
-                  }
-                },
-                "example": {
-                  "message": "Products retrieved successfully",
-                  "data": [
-                    {
-                      "_id": "60d21b4667d0d8992e610c95",
-                      "name": "Wireless Headphones",
-                      "price": 99.99,
-                      "category": "60d21b4667d0d8992e610c90",
-                      "description": "Noise-cancelling over-ear headphones",
-                      "status": "active"
-                    }
-                  ],
-                  "pagination": {
-                    "total": 100,
-                    "page": 1,
-                    "limit": 10,
-                    "pages": 10
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": ["Product"],
-        "summary": "Create Product",
-        "description": "Creates a new product (Admin only)",
-        "security": [{ "bearerAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Product" }
-            }
-          }
-        },
-        "responses": {
-          "201": { 
-            "description": "Product created successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Product" }
-              }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" }
-        }
-      }
-    },
-    "/products/{id}": {
-      "get": {
-        "tags": ["Product"],
-        "summary": "Get Single Product",
-        "security": [],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Product ID" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Product retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Product" }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/NotFoundError" }
-        }
-      },
-      "put": {
-        "tags": ["Product"],
-        "summary": "Update Product",
-        "description": "Completely replaces a product (Admin only)",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Product" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Product updated successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Product" }
-              }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" },
-          "404": { "$ref": "#/components/responses/NotFoundError" }
-        }
-      },
-      "delete": {
-        "tags": ["Product"],
-        "summary": "Delete Product",
-        "description": "Deletes a product (Admin only)",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Product deleted successfully",
-            "content": {
-              "application/json": {
-                "example": { "message": "Product deleted successfully" }
-              }
-            }
-          },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" },
-          "404": { "$ref": "#/components/responses/NotFoundError" }
-        }
-      }
-    },
-    "/categories": {
-      "get": {
-        "tags": ["Category"],
-        "summary": "Get All Categories",
-        "security": [],
-        "parameters": [
-          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["active", "inactive"] } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Categories fetched successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" },
-                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Category" } }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": ["Category"],
-        "summary": "Create Category",
-        "description": "Creates a new category (Admin only)",
-        "security": [{ "bearerAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Category" }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Category created successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Category" }
-              }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" }
-        }
-      }
-    },
-    "/categories/{id}": {
-      "get": {
-        "tags": ["Category"],
-        "summary": "Get Single Category",
-        "security": [],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Category retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Category" }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/NotFoundError" }
-        }
-      },
-      "put": {
-        "tags": ["Category"],
-        "summary": "Update Category",
-        "description": "Completely replaces a category (Admin only)",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Category" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Category updated successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Category" }
-              }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" },
-          "404": { "$ref": "#/components/responses/NotFoundError" }
-        }
-      },
-      "delete": {
-        "tags": ["Category"],
-        "summary": "Delete Category",
-        "description": "Deletes a category (Admin only)",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Category deleted successfully",
-            "content": {
-              "application/json": {
-                "example": { "message": "Category deleted successfully" }
-              }
-            }
-          },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" },
-          "404": { "$ref": "#/components/responses/NotFoundError" }
-        }
-      }
-    },
-    "/orders": {
-      "get": {
-        "tags": ["Order"],
-        "summary": "Get All Orders",
-        "description": "Retrieves all orders (Admin only)",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] } },
-          { "name": "userEmail", "in": "query", "schema": { "type": "string" }, "description": "Filter by user email" },
-          { "name": "page", "in": "query", "schema": { "type": "number", "default": 1 } },
-          { "name": "limit", "in": "query", "schema": { "type": "number", "default": 10 } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Orders fetched successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" },
-                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Order" } },
-                    "pagination": { "$ref": "#/components/schemas/Pagination" }
-                  }
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" }
-        }
-      },
-      "post": {
-        "tags": ["Order"],
-        "summary": "Create Order",
-        "security": [{ "bearerAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Order" }
-            }
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
           }
         },
-        "responses": {
-          "201": {
-            "description": "Order created successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Order" }
-              }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" }
-        }
-      }
-    },
-    "/orders/mine": {
-      "get": {
-        "tags": ["Order"],
-        "summary": "Get My Orders",
-        "description": "Retrieves orders for the authenticated user",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "status", "in": "query", "schema": { "type": "string" } },
-          { "name": "page", "in": "query", "schema": { "type": "number", "default": 1 } },
-          { "name": "limit", "in": "query", "schema": { "type": "number", "default": 10 } }
-        ],
-        "responses": {
-          "200": {
-            "description": "User orders fetched successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" },
-                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Order" } },
-                    "pagination": { "$ref": "#/components/schemas/Pagination" }
-                  }
-                }
-              }
-            }
-          },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" }
-        }
-      }
-    },
-    "/orders/{id}": {
-      "get": {
-        "tags": ["Order"],
-        "summary": "Get Single Order",
-        "description": "Retrieves a specific order (users can access their own orders, admins can access any)",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Order retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Order" }
-              }
-            }
-          },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" },
-          "404": { "$ref": "#/components/responses/NotFoundError" }
-        }
-      },
-      "put": {
-        "tags": ["Order"],
-        "summary": "Update Order",
-        "description": "Updates an order (Admin only for status changes)",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] },
-                  "notes": { "type": "string" }
-                }
+                "$ref": "#/components/schemas/User"
               }
             }
           }
-        },
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "POST /login",
+        "security": [],
         "responses": {
           "200": {
-            "description": "Order updated successfully",
+            "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Order" }
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" },
-          "404": { "$ref": "#/components/responses/NotFoundError" }
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "POST /logout",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh-token": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "GET /refresh-token",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "POST /forgot-password",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-password/{token}": {
+      "patch": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "PATCH /reset-password/:token",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "GET /me",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "tags": [
+          "product"
+        ],
+        "summary": "GET /",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "product"
+        ],
+        "summary": "POST /",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{id}": {
+      "get": {
+        "tags": [
+          "product"
+        ],
+        "summary": "GET /:id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "product"
+        ],
+        "summary": "PATCH /:id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
         }
       },
       "delete": {
-        "tags": ["Order"],
-        "summary": "Delete Order",
-        "description": "Deletes an order (Admin only)",
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        "tags": [
+          "product"
         ],
+        "summary": "DELETE /:id",
         "responses": {
           "200": {
-            "description": "Order deleted successfully",
+            "description": "Success",
             "content": {
               "application/json": {
-                "example": { "message": "Order deleted successfully" }
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/UnauthorizedError" },
-          "403": { "$ref": "#/components/responses/ForbiddenError" },
-          "404": { "$ref": "#/components/responses/NotFoundError" }
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
         }
       }
-    }
-  },
-  "tags": [
-    { "name": "Auth", "description": "Authentication endpoints" },
-    { "name": "Product", "description": "Product management endpoints" },
-    { "name": "Category", "description": "Category management endpoints" },
-    { "name": "Order", "description": "Order management endpoints" }
-  ]
+    },
+    "/api/v1/products/{productId}/reviews": {
+      "get": {
+        "tags": [
+          "review"
+        ],
+        "summary": "GET /:productId/reviews",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "review"
+        ],
+        "summary": "POST /:productId/reviews",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews": {
+      "get": {
+        "tags": [
+          "review"
+        ],
+        "summary": "GET /",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "review"
+        ],
+        "summary": "POST /",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/{id}": {
+      "get": {
+        "tags": [
+          "review"
+        ],
+        "summary": "GET /:id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "review"
+        ],
+        "summary": "PATCH /:id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "review"
+        ],
+        "summary": "DELETE /:id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wishlist": {
+      "get": {
+        "tags": [
+          "wishlist"
+        ],
+        "summary": "GET /",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "wishlist"
+        ],
+        "summary": "POST /",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wishlist/{productId}": {
+      "delete": {
+        "tags": [
+          "wishlist"
+        ],
+        "summary": "DELETE /:productId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/coupons": {
+      "post": {
+        "tags": [
+          "coupon"
+        ],
+        "summary": "POST /",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Coupon"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Coupon"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "coupon"
+        ],
+        "summary": "GET /",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Coupon"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/coupons/{id}": {
+      "delete": {
+        "tags": [
+          "coupon"
+        ],
+        "summary": "DELETE /:id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Coupon"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "coupon"
+        ],
+        "summary": "PATCH /:id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Coupon"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Coupon"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/address": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "POST /address",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/cart": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "POST /cart",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "GET /cart",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "DELETE /cart",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/cart/coupon": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "POST /cart/coupon",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/orders/cod": {
+     "post": {
+       "tags": [
+         "order"
+       ],
+       "summary": "POST /cod",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/Order"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/orders": {
+     "get": {
+       "tags": [
+         "order"
+       ],
+       "summary": "GET /",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/Order"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       }
+     }
+   },
+   "/api/v1/orders/{orderId}/status": {
+     "patch": {
+       "tags": [
+         "order"
+       ],
+       "summary": "PATCH /:orderId/status",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/Order"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/payments/initiate": {
+     "post": {
+       "tags": [
+         "payment"
+       ],
+       "summary": "POST /initiate",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "type": "object"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/webhooks/stripe": {
+     "post": {
+       "tags": [
+         "webhook"
+       ],
+       "summary": "POST /stripe",
+       "security": [],
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "type": "object"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/webhooks/paymob": {
+     "post": {
+       "tags": [
+         "webhook"
+       ],
+       "summary": "POST /paymob",
+       "security": [],
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "type": "object"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/webhooks/fawry": {
+     "post": {
+       "tags": [
+         "webhook"
+       ],
+       "summary": "POST /fawry",
+       "security": [],
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "type": "object"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/notifications": {
+     "get": {
+       "tags": [
+         "notification"
+       ],
+       "summary": "GET /",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/Notification"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       }
+     }
+   },
+   "/api/v1/notifications/read-all": {
+     "patch": {
+       "tags": [
+         "notification"
+       ],
+       "summary": "PATCH /read-all",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/Notification"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/notifications/{id}/read": {
+     "patch": {
+       "tags": [
+         "notification"
+       ],
+       "summary": "PATCH /:id/read",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/Notification"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/chatbot": {
+     "post": {
+       "tags": [
+         "chatbot"
+       ],
+       "summary": "POST /",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "type": "object"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       },
+       "requestBody": {
+         "required": true,
+         "content": {
+           "application/json": {
+             "schema": {
+               "type": "object"
+             }
+           }
+         }
+       }
+     }
+   },
+   "/api/v1/admin/stats": {
+     "get": {
+       "tags": [
+         "admin"
+       ],
+       "summary": "GET /stats",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "type": "object"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       }
+     }
+   },
+   "/api/v1/admin/users": {
+     "get": {
+       "tags": [
+         "admin"
+       ],
+       "summary": "GET /users",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/User"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       }
+     }
+   },
+   "/api/v1/admin/orders": {
+     "get": {
+       "tags": [
+         "admin"
+       ],
+       "summary": "GET /orders",
+       "responses": {
+         "200": {
+           "description": "Success",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "#/components/schemas/Order"
+               }
+             }
+           }
+         },
+         "400": {
+           "description": "Bad Request"
+         },
+         "401": {
+           "description": "Unauthorized"
+         },
+         "404": {
+           "description": "Not Found"
+         }
+       }
+     }
+   }
+ }
 }

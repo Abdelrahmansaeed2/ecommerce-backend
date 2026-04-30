@@ -1,445 +1,183 @@
-# E-Commerce Backend API
+# Enterprise E-Commerce Backend
 
-##  Overview
-
-A complete **E-Commerce Backend System** built with:
-
-* **Node.js**
-* **Express.js**
-* **MongoDB (Mongoose)**
-
-The project follows **MVC architecture** and provides a secure, scalable RESTful API with:
-
-* JWT Authentication
-* Role-based Authorization
-* Full CRUD operations
-* Advanced filtering, pagination, and sorting
+This is a robust, scalable, and production-ready backend for a modern e-commerce platform, built with Node.js, Express, and MongoDB. It follows a clean, service-oriented architecture and includes a wide range of advanced, enterprise-grade features.
 
 ---
 
-##  Objectives
+##  Core Features
 
-* Build a real-world backend system
-* Apply MVC architecture
-* Secure APIs using JWT
-* Implement role-based access control
-* Work with MongoDB relationships
-* Handle errors professionally
-
----
-
-##  Features
-
-###  Authentication & Authorization
-
-* User Registration & Login
-* Password hashing using bcrypt
-* JWT Token generation
-* Protected routes
-* Role-based access:
-
-  * **Admin → Full CRUD**
-  * **User → Read + Orders only**
-
----
-
-###  User Module
-
-* Register user
-* Login user
-* Hash password
-* Generate token
-* Roles: `Admin`, `User`
+-   **Clean Architecture**: Follows a modular `Controller` → `Service` → `Model` structure for excellent separation of concerns and maintainability.
+-   **Advanced Authentication**: Secure JWT-based authentication featuring a refresh token strategy for persistent sessions and role-based access control (`user`, `admin`).
+-   **Multi-Gateway Payment System**: A flexible, provider-agnostic payment architecture supporting:
+    -   **Stripe**: For international credit card payments.
+    -   **Paymob**: Redirect-based payment gateway for the Egyptian market.
+    -   **Fawry**: Redirect-based payment gateway for the Egyptian market.
+    -   **Cash on Delivery (COD)**: For offline payments.
+-   **Webhook-Driven Orders**: A reliable, asynchronous order creation flow. Orders are only created after receiving a verified success notification from the payment provider, preventing data inconsistencies.
+-   **Intelligent AI Chatbot**:
+    -   **Retrieval-Augmented Generation (RAG)**: The chatbot is connected directly to the product and order databases.
+    -   **Vector Search**: Uses MongoDB Atlas Vector Search and OpenAI embeddings for advanced semantic search, allowing it to understand the *meaning* behind user queries (e.g., "show me something for a cold day").
+    -   **Conversational Memory**: Remembers previous messages in a conversation for natural, context-aware interactions.
+-   **Full Product Management**: Complete CRUD API for products with advanced capabilities like filtering, sorting, field selection, and pagination.
+-   **Comprehensive User Features**:
+    -   **Wishlist**: Allows users to save products for later.
+    -   **Persistent Cart**: Full shopping cart management.
+    -   **Reviews & Ratings**: Users can review and rate products, with automatic calculation of average ratings.
+-   **Admin Dashboard APIs**: Secure endpoints for administrators to view key metrics (total sales, users, orders) and manage platform data.
+-   **Coupon & Discount System**: Enables admins to create and manage discount codes that can be applied to user carts.
+-   **Real-time Systems**:
+    -   **Socket.io Chat**: Foundation for real-time customer support or user-to-user messaging.
+    -   **In-App Notifications**: Real-time alerts for events like order status changes, pushed to the client via Socket.io.
+-   **Production-Ready Infrastructure**:
+    -   **Centralized Error Handling**: A global error handler provides graceful error management and consistent API error responses.
+    -   **Robust Input Validation**: Server-side validation for all incoming data using `express-validator`.
+    -   **Comprehensive Logging**: Detailed logging with `winston`, configured for both development (console) and production (file-based) environments.
+    -   **Security Hardening**: Includes rate limiting, password hashing (`bcrypt`), and secure cookie configurations.
 
 ---
 
-###  Product Module
+##  Getting Started
 
-* Create Product (Admin only)
-* Get All Products
-* Get Single Product
-* Update Product (Admin only)
-* Delete Product (Admin only)
+### Prerequisites
 
-**Advanced:**
+-   Node.js (v16 or higher)
+-   MongoDB (a local instance or a cloud service like MongoDB Atlas is required)
+-   An account with Stripe, Paymob, and Fawry for payment testing.
+-   An OpenAI account for the AI chatbot and embedding generation.
 
-* Pagination
-* Search (name, description)
-* Filtering:
+### 1. Clone the Repository
 
-  * category
-  * price range
-  * status
-* Sorting:
+```bash
+git clone <your-repository-url>
+cd ecommerce-backend
+```
 
-  * price
-  * createdAt
+### 2. Install Dependencies
 
----
+```bash
+npm install
+```
 
-###  Category Module
+### 3. Set Up Environment Variables
 
-* Create Category (Admin)
-* Get All Categories
-* Get Single Category
-* Update Category (Admin)
-* Delete Category (Admin)
+Create a `.env` file in the root of the project by copying the example file:
 
----
+```bash
+cp .env.example .env
+```
 
-###  Order Module
+Now, open the `.env` file and fill in all the required values for the database, JWT secrets, and external service API keys.
 
-* Create Order (User)
-* Get My Orders
-* Get All Orders (Admin)
-* Get Single Order
-* Update Order
-* Delete Order
+### 4. Run the Server
 
----
+For development with automatic reloading via `nodemon`:
 
-###  Middleware
+```bash
+npm run dev
+```
 
-* Authentication Middleware (JWT)
-* Authorization Middleware (Role-based)
-* Error Handling Middleware
-* Rate Limiting
-* Logger (Morgan + custom logger)
+For a standard production start:
+
+```bash
+npm start
+```
+
+The server will be running at `http://localhost:5000` (or the port specified in your `.env` file).
 
 ---
 
-##  Database Design
+##  AI Chatbot & Vector Search Setup
 
-### Relationships:
+The chatbot uses MongoDB Atlas Vector Search for its advanced semantic search capabilities. This requires a one-time setup in your Atlas cluster.
 
-* Product → Category (Many-to-One)
-* Order → User (Many-to-One)
-* Order → Products (Many-to-Many via items)
+### 1. Create the Vector Search Index
+
+You must create a vector search index on the `products` collection in your MongoDB Atlas cluster.
+
+1.  Navigate to your cluster in Atlas and click the **Search** tab.
+2.  Click **Create Search Index** and choose the **JSON Editor** option.
+3.  Select the correct database and the `products` collection.
+4.  Give the index a name (e.g., `vector_index`). This name must match the `index` field in the `$vectorSearch` stage in `chatbotController.js`.
+5.  Paste the following JSON configuration. This configuration assumes your embedding model (like `text-embedding-3-small`) produces vectors of **1536** dimensions. If you use a different model, you must update the `dimension` value.
+
+```json
+{
+  "mappings": {
+    "dynamic": false,
+    "fields": {
+      "description_embedding": {
+        "type": "vector",
+        "dimension": 1536,
+        "similarity": "cosine"
+      }
+    }
+  }
+}
+```
+
+### 2. Backfill Embeddings for Existing Products
+
+While new products will automatically have their descriptions converted to vector embeddings upon creation, your existing products need to be processed. The provided backfill script handles this.
+
+This script finds all products without an embedding, generates one using the OpenAI API, and saves it to the database. It processes products in batches to ensure stability and avoid rate limits.
+
+```bash
+npm run backfill:embeddings
+```
+
+---
+
+##  Payment & Order Flow
+
+The system uses a robust, webhook-driven flow for online payments to ensure reliability.
+
+1.  **Payment Initiation**: The frontend sends a request to `/api/v1/payments/initiate` with the chosen `paymentMethod` (`stripe`, `paymob`, or `fawry`).
+2.  **Frontend Action**:
+    -   For **Stripe**, the backend returns a `clientSecret`, which the frontend uses with Stripe.js to render the payment form.
+    -   For **Paymob** or **Fawry**, the backend returns a `redirectUrl`, and the frontend redirects the user to this URL to complete payment.
+3.  **Webhook Confirmation**: After a successful payment, the payment provider sends an asynchronous request to our secure webhook endpoint (e.g., `/api/v1/webhooks/stripe`).
+4.  **Order Creation**: The webhook handler verifies the incoming request's authenticity. If valid, it calls the `createOrderAfterPayment` function, which creates the official order in the database, updates product stock, and clears the user's cart.
+
+For **Cash on Delivery (COD)**, the flow is simpler and synchronous. The frontend calls `/api/v1/orders/cod`, which immediately creates the order.
 
 ---
 
 ##  Project Structure
 
-```id="proj1"
-project/
-│
-├── models/
-├── controllers/
-├── routes/
-├── middlewares/
-├── config/
-├── utils/
-├── public/
-├── views/
-├── tests/
-├── app.js
-├── server.js
-└── package.json
+```
+ecommerce-backend/
+├── config/             # Database, logging, and other configurations
+├── controllers/        # Express route handlers (the "C" in MVC)
+├── middleware/         # Custom middleware (error handling, validation)
+├── models/             # Mongoose schemas and models (the "M" in MVC)
+├── routes/             # Express route definitions
+├── scripts/            # Utility scripts (e.g., data backfilling)
+├── services/           # Business logic abstracted from controllers
+├── utils/              # Reusable utility functions and classes
+├── .env.example        # Example environment variables
+├── app.js              # Express application setup
+└── server.js           # Main server entry point
 ```
 
 ---
 
-##  Installation & Setup
+##  API Documentation
 
-### 1️⃣ Clone repository
+Once the server is running, comprehensive and interactive API documentation is available via Swagger UI at:
 
-```bash id="cmd1"
-git clone https://github.com/your-username/ecommerce-backend.git
-cd ecommerce-backend
+**http://localhost:5000/api-docs**
+
+This interface allows you to explore all available endpoints, view their required parameters and schemas, and test them directly from your browser.
+
+---
+
+##  Available Scripts
+
+In the project directory, you can run the following commands:
+
+-   `npm run dev`: Starts the server in development mode with `nodemon` for automatic restarts.
+-   `npm start`: Starts the server in production mode.
+-   `npm run backfill:embeddings`: Runs the script to generate and save vector embeddings for existing products in the database.
+
 ```
-
-### 2️⃣ Install dependencies
-
-```bash id="cmd2"
-npm install
-```
-
-### 3️⃣ Create `.env` file
-
-```env id="env1"
-PORT=5000
-DB_URL=mongodb://127.0.0.1:27017/ecommerce
-JWT_SECRET=your_secret_key
-```
-
-### 4️⃣ Run server
-
-```bash id="cmd3"
-npm run dev
-```
-
----
-
-##  Base URL
-
-```id="base1"
-http://localhost:5000/api
-```
-
----
-
-#  FULL API DOCUMENTATION
-
----
-
-#  AUTH API
-
-## ➤ Register User
-
-**POST** `/api/auth/register`
-
-### Body:
-
-```json id="auth1"
-{
-  "username": "john",
-  "email": "john@mail.com",
-  "password": "123456"
-}
-```
-
-### Response:
-
-```json id="auth2"
-{
-  "message": "User registered successfully",
-  "token": "JWT_TOKEN"
-}
-```
-
----
-
-## ➤ Login User
-
-**POST** `/api/auth/login`
-
-### Body:
-
-```json id="auth3"
-{
-  "email": "john@mail.com",
-  "password": "123456"
-}
-```
-
-### Response:
-
-```json id="auth4"
-{
-  "message": "Login successful",
-  "token": "JWT_TOKEN"
-}
-```
-
----
-
-#  PRODUCT API
-
-## ➤ Get All Products
-
-**GET** `/api/products`
-
-### Query Parameters:
-
-```id="prod1"
-?page=1
-&limit=10
-&search=phone
-&category=categoryId
-&minPrice=100
-&maxPrice=1000
-&status=active
-&sort=price
-&order=asc
-```
-
-### Response:
-
-```json id="prod2"
-{
-  "data": [],
-  "pagination": {
-    "total": 100,
-    "page": 1,
-    "limit": 10
-  }
-}
-```
-
----
-
-## ➤ Get Single Product
-
-**GET** `/api/products/:id`
-
----
-
-## ➤ Create Product (Admin)
-
-**POST** `/api/products`
-
-### Headers:
-
-```id="prod3"
-Authorization: Bearer TOKEN
-```
-
-### Body:
-
-```json id="prod4"
-{
-  "name": "iPhone",
-  "price": 1000,
-  "category": "categoryId",
-  "description": "Latest model",
-  "status": "active"
-}
-```
-
----
-
-## ➤ Update Product (Admin)
-
-**PUT/PATCH** `/api/products/:id`
-
----
-
-## ➤ Delete Product (Admin)
-
-**DELETE** `/api/products/:id`
-
----
-
-#  CATEGORY API
-
-## ➤ Get All Categories
-
-**GET** `/api/categories`
-
----
-
-## ➤ Get Single Category
-
-**GET** `/api/categories/:id`
-
----
-
-## ➤ Create Category (Admin)
-
-**POST** `/api/categories`
-
----
-
-## ➤ Update Category (Admin)
-
-**PUT/PATCH** `/api/categories/:id`
-
----
-
-## ➤ Delete Category (Admin)
-
-**DELETE** `/api/categories/:id`
-
----
-
-#  ORDER API
-
-## ➤ Create Order
-
-**POST** `/api/orders`
-
-### Body:
-
-```json id="order1"
-{
-  "items": [
-    {
-      "product": "productId",
-      "quantity": 2
-    }
-  ],
-  "shippingAddress": {
-    "address": "Cairo",
-    "city": "Cairo",
-    "postalCode": "12345"
-  },
-  "paymentMethod": "cash"
-}
-```
-
----
-
-## ➤ Get My Orders
-
-**GET** `/api/orders/mine`
-
----
-
-## ➤ Get All Orders (Admin)
-
-**GET** `/api/orders`
-
----
-
-## ➤ Get Single Order
-
-**GET** `/api/orders/:id`
-
----
-
-## ➤ Update Order
-
-**PUT/PATCH** `/api/orders/:id`
-
----
-
-## ➤ Delete Order
-
-**DELETE** `/api/orders/:id`
-
----
-
-#  Authentication
-
-All protected routes require:
-
-```id="authHeader"
-Authorization: Bearer YOUR_TOKEN
-```
-
----
-
-# Error Handling
-
-Standard error response:
-
-```json id="err1"
-{
-  "status": "error",
-  "message": "Error message"
-}
-```
-
----
-
-
-#  Security
-
-* JWT Authentication
-* Password hashing (bcrypt)
-* Rate limiting
-* Protected routes
-
----
-
-#  Bonus Features Implemented
-
-* Pagination
-* Search
-* Filtering
-* Sorting
-* Logging system
-* Rate limiting
-
----
 

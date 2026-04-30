@@ -1,70 +1,119 @@
-import User from "../models/userModel.js";
-import { generateToken } from "../utils/auth.js";
-import { createError } from "../utils/error.js";
+const User = require("../models/userModel");
+const Product = require("../models/productModel");
+const Cart = require("../models/cartModel");
+const Coupon = require("../models/couponModel");
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
 
-export const registerUser = async (req,res,next) =>{
-    try{
-        const { username, password, email, role } = req.body;
-        if(!username || !password || !email){
-            throw createError("Credentials incomplete, username, password and email are required",400);
-        }
+exports.saveAddress = catchAsync(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    { address: req.body.address },
+    { new: true },
+  );
 
-        const exists = await User.findOne({$or: [ {username: username}, {email: email} ]})
+  res.status(200).json({
+    success: true,
+    message: "Address saved successfully.",
+    data: {
+      address: user.address,
+    },
+  });
+});
 
-        if(exists){
-            throw createError("Username or Email already exist",400);
-        }
+exports.createUserCart = catchAsync(async (req, res, next) => {
+  const { cart } = req.body;
+  const user = await User.findById(req.user.id);
 
-        const newUser = await User.create({
-            username: username,
-            password: password,
-            email: email,
-            role: role
-        })
+  // Check if user already has a cart and remove it
+  const existingCart = await Cart.findOne({ orderedBy: user._id });
+  if (existingCart) {
+    await existingCart.deleteOne();
+  }
 
-        if(!newUser){
-            throw createError(`Error registering user`,500);
-        }
+  let products = [];
+  let cartTotal = 0;
 
-        return res.status(201).json({message:"Registered user successfully", data: newUser});
-    }
-    catch(err){
-        next(err);
-    }
-}
+  for (let i = 0; i < cart.length; i++) {
+    let productObject = {};
+    productObject.product = cart[i]._id;
+    productObject.count = cart[i].count;
 
+    // Get price from DB to ensure accuracy
+    let productFromDb = await Product.findById(cart[i]._id)
+      .select("price")
+      .exec();
+    productObject.price = productFromDb.price;
 
-export const loginUser = async (req,res,next) => {
-    try{
-        const {email, password} = req.body;
+    products.push(productObject);
+    cartTotal += productObject.price * productObject.count;
+  }
 
-        if(!email || !password){
-            throw createError("Email and/or password are missing",400);
-        }
+  let newCart = await new Cart({
+    products,
+    cartTotal,
+    orderedBy: user._id,
+  }).save();
 
-        const exists = await User.findOne({ email: email});
+  res.status(201).json({
+    success: true,
+    message: "Cart created successfully.",
+    data: {
+      cart: newCart,
+    },
+  });
+});
 
-        if(!exists){
-            throw createError("Email doesn't exist",400);
-        }
+exports.getUserCart = catchAsync(async (req, res, next) => {
+  const cart = await Cart.findOne({ orderedBy: req.user.id }).populate(
+    "products.product",
+    "_id name price",
+  );
 
-        const isPasswordValid = await exists.checkPassword(password);
-        if(!isPasswordValid){
-            throw createError("incorrect password",400);
-        }
+  if (!cart) {
+    return next(new AppError("No cart found for this user.", 404));
+  }
 
-        const token = generateToken(exists.email, exists.role);
-        const userData = exists.toObject();
-        delete userData.password;
-        
-        return res.status(200).json({
-            message:"Login Successful",
-            data: userData,
-            token: token 
-        })
-    }
-    catch(err){
-        next(err);
-    }
+  res.status(200).json({
+    success: true,
+    data: {
+      cart,
+    },
+  });
+});
 
-}
+exports.emptyCart = catchAsync(async (req, res, next) => {
+  await Cart.findOneAndRemove({ orderedBy: req.user.id });
+  res.status(204).json({
+    success: true,
+    data: null,
+  });
+});
+
+exports.applyCouponToCart = catchAsync(async (req, res, next) => {
+  const { coupon } = req.body;
+  const validCoupon = await Coupon.findOne({ name: coupon });
+
+  if (!validCoupon || validCoupon.expiry < Date.now()) {
+    return next(new AppError("Invalid or expired coupon", 400));
+  }
+
+  const cart = await Cart.findOne({ orderedBy: req.user.id });
+
+  const totalAfterDiscount = (
+    cart.cartTotal -
+    (cart.cartTotal * validCoupon.discount) / 100
+  ).toFixed(2);
+
+  await Cart.findOneAndUpdate(
+    { orderedBy: req.user.id },
+    { totalAfterDiscount },
+    { new: true },
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Coupon applied successfully.",
+    data: { totalAfterDiscount },
+  });
+});

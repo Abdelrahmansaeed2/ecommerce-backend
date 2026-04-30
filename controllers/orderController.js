@@ -1,280 +1,114 @@
-const Order = require("../models/orderModel");
-const Product = require("../models/productModel");
-const createError = (message, statusCode = 500) => {
-  const error = new Error(message);
-  error.statusCode = statusCode;
-  return error;
-};
+const Order = require('../models/orderModel');
+const User = require('../models/userModel');
+const Cart = require('../models/cartModel');
+const Product = require('../models/productModel');
+const catchAsync = require('../utils/catchAsync');
+const { sendNotificationToUser } = require('../socket');
+const Notification = require('../models/notificationModel');
+const AppError = require('../utils/appError');
 
-const getUserModel = async () => {
-  const userModule = await import("../models/userModel.js");
-  return userModule.default;
-};
+ // Creates an order for Cash on Delivery.
+exports.createCashOrder = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  const userCart = await Cart.findOne({ orderedBy: user._id });
 
-const validateShippingAddress = (shippingAddress) => {
-  const requiredFields = ["fullName", "phone", "addressLine", "city", "country"];
-  for (const field of requiredFields) {
-    if (!shippingAddress[field] || String(shippingAddress[field]).trim() === "") {
-      throw createError(`shippingAddress.${field} is required`, 400);
-    }
-  }
-};
-
-const buildOrderItems = async (items) => {
-  const normalizedItems = [];
-  let totalPrice = 0;
-
-  for (const item of items) {
-    const product = await Product.findById(item.product);
-    if (!product) {
-      throw createError(`Product not found: ${item.product}`, 400);
-    }
-
-    const quantity = Number(item.quantity || 1);
-    if (!Number.isInteger(quantity) || quantity < 1) {
-      throw createError("Quantity must be a positive integer", 400);
-    }
-
-    const price = Number(product.price);
-    normalizedItems.push({
-      product: product._id,
-      name: product.name,
-      quantity,
-      price,
-    });
-    totalPrice += price * quantity;
+  if (!userCart) {
+    return next(new AppError("No active cart found for this user.", 404));
   }
 
-  return { normalizedItems, totalPrice };
+  const finalAmount = userCart.totalAfterDiscount || userCart.cartTotal;
+
+  const newOrder = await new Order({
+    products: userCart.products,
+    paymentMethod: 'cod',
+    orderedBy: user._id,
+    totalOrderPrice: finalAmount,
+    orderStatus: 'Processing', // Or a dedicated 'Cash on Delivery' status
+  }).save();
+
+  const bulkOption = userCart.products.map((item) => {
+    return {
+      updateOne: {
+        filter: { _id: item.product._id },
+        update: { $inc: { stock: -item.count, sold: +item.count } },
+      },
+    };
+  });
+  await Product.bulkWrite(bulkOption, {});
+
+  await Cart.findOneAndRemove({ orderedBy: user._id });
+
+  res.status(201).json({
+    success: true,
+    message: 'Order placed successfully.',
+    data: { order: newOrder },
+  });
+});
+
+/**
+ * Creates an order after a successful online payment (used by webhooks).
+ * @param {string} userId - The ID of the user who placed the order.
+ * @param {string} cartId - The ID of the cart to be converted into an order.
+ * @param {object} paymentResult - The payment result object from the provider.
+ * @param {string} paymentMethod - The payment method used.
+ */
+exports.createOrderAfterPayment = async (userId, cartId, paymentResult, paymentMethod) => {
+  const cart = await Cart.findById(cartId);
+  if (!cart) return; // Or throw an error
+
+  const finalAmount = cart.totalAfterDiscount || cart.cartTotal;
+
+  await new Order({
+    products: cart.products,
+    paymentResult,
+    paymentMethod,
+    totalOrderPrice: finalAmount,
+    orderedBy: userId,
+  }).save();
+
+  const bulkOption = cart.products.map(item => ({
+    updateOne: {
+      filter: { _id: item.product._id },
+      update: { $inc: { stock: -item.count, sold: +item.count } },
+    },
+  }));
+  await Product.bulkWrite(bulkOption, {});
+
+  await Cart.findByIdAndRemove(cartId);
 };
 
-const getAllOrders = async (req, res, next) => {
-  try {
-    const { status, userEmail } = req.query;
-    const filters = {};
+exports.getUserOrders = catchAsync(async (req, res, next) => {
+  const userOrders = await Order.find({ orderedBy: req.user._id })
+    .populate('products.product')
+    .sort('-createdAt');
 
-    if (status) {
-      filters.status = status;
-    }
+  res.status(200).json({
+    success: true,
+    data: {
+      orders: userOrders,
+    },
+  });
+});
 
-    if (userEmail) {
-      filters.userEmail = userEmail;
-    }
+exports.updateOrderStatus = catchAsync(async (req, res, next) => {
+  const { orderStatus } = req.body;
+  const updated = await Order.findByIdAndUpdate(
+    req.params.orderId,
+    { orderStatus },
+    { new: true }
+  );
 
-    const orders = await Order.find(filters)
-      .populate("user", "username email role")
-      .populate("items.product", "name price status category")
-      .sort({ createdAt: -1 });
-
-    return res.status(200).json({
-      success: true,
-      count: orders.length,
-      data: orders,
+  if (updated) {
+    const message = `Your order status has been updated to: ${orderStatus}`;
+    const notification = await Notification.create({
+      user: updated.orderedBy,
+      message,
+      link: `/orders/${updated._id}`,
     });
-  } catch (error) {
-    next(error);
+
+    // Send real-time notification via Socket.IO
+    sendNotificationToUser(updated.orderedBy, notification);
   }
-};
 
-const getMyOrders = async (req, res, next) => {
-  try {
-    const orders = await Order.find({ userEmail: req.user.email })
-      .populate("user", "username email role")
-      .populate("items.product", "name price status category")
-      .sort({ createdAt: -1 });
-
-    return res.status(200).json({
-      success: true,
-      count: orders.length,
-      data: orders,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const getOrder = async (req, res, next) => {
-  try {
-    const order = await Order.findById(req.params.id)
-      .populate("user", "username email role")
-      .populate("items.product", "name price status category");
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    if (req.user.role !== "Admin" && order.userEmail !== req.user.email) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: order,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const createOrder = async (req, res, next) => {
-  try {
-    const {
-      items,
-      shippingAddress,
-      paymentMethod,
-      notes,
-    } = req.body;
-
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      throw createError("items array is required", 400);
-    }
-
-    if (!shippingAddress) {
-      throw createError("shippingAddress is required", 400);
-    }
-
-    validateShippingAddress(shippingAddress);
-
-    const { normalizedItems, totalPrice } = await buildOrderItems(items);
-    const User = await getUserModel();
-    const user = await User.findOne({ email: req.user.email });
-
-    if (!user) {
-      throw createError("Authenticated user not found", 401);
-    }
-
-    const order = await Order.create({
-      user: user._id,
-      userEmail: req.user.email,
-      items: normalizedItems,
-      shippingAddress,
-      paymentMethod,
-      notes,
-      totalPrice,
-    });
-
-    const populatedOrder = await Order.findById(order._id)
-      .populate("user", "username email role")
-      .populate("items.product", "name price status category");
-
-    return res.status(201).json({
-      success: true,
-      message: "Order created successfully",
-      data: populatedOrder,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const updateOrder = async (req, res, next) => {
-  try {
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    if (req.user.role !== "Admin" && order.userEmail !== req.user.email) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied",
-      });
-    }
-
-    if (req.user.role !== "Admin" && req.body.status !== undefined) {
-      return res.status(403).json({
-        success: false,
-        message: "Only admin can update order status",
-      });
-    }
-
-    const updates = {};
-
-    if (req.body.status) {
-      updates.status = req.body.status;
-    }
-
-    if (req.body.notes !== undefined) {
-      updates.notes = req.body.notes;
-    }
-
-    if (req.body.shippingAddress) {
-      validateShippingAddress(req.body.shippingAddress);
-      updates.shippingAddress = req.body.shippingAddress;
-    }
-
-    if (req.body.paymentMethod) {
-      updates.paymentMethod = req.body.paymentMethod;
-    }
-
-    if (req.body.items) {
-      const { normalizedItems, totalPrice } = await buildOrderItems(req.body.items);
-      updates.items = normalizedItems;
-      updates.totalPrice = totalPrice;
-    }
-
-    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
-      runValidators: true,
-    })
-      .populate("user", "username email role")
-      .populate("items.product", "name price status category");
-
-    return res.status(200).json({
-      success: true,
-      message: "Order updated successfully",
-      data: updatedOrder,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const deleteOrder = async (req, res, next) => {
-  try {
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    if (req.user.role !== "Admin" && order.userEmail !== req.user.email) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied",
-      });
-    }
-
-    await Order.findByIdAndDelete(req.params.id);
-
-    return res.status(200).json({
-      success: true,
-      message: "Order deleted successfully",
-      data: order,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports = {
-  getAllOrders,
-  getMyOrders,
-  getOrder,
-  createOrder,
-  updateOrder,
-  deleteOrder,
-};
+  res.status(200).json({ success: true, data: { order: updated } });
+});

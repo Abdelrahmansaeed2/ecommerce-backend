@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-  "swagger": "node mongoose-swagger.js"
+    "swagger": "node mongoose-swagger.js",
+    "backfill:embeddings": "node scripts/backfillEmbeddings.js"
   },
   "keywords": [
     "nodejs",
@@ -17,19 +18,28 @@
   "author": "Abdelrahman Saeed",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.6",
+    "bcrypt": "^5.1.1",
+    "axios": "^1.7.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^4.19.2",
+    "express-validator": "^7.1.0",
     "express-rate-limit": "^7.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.3.0",
     "morgan": "^1.10.0",
+    "nodemailer": "^6.9.13",
+    "slugify": "^1.6.6",
+    "openai": "^4.40.0",
+    "socket.io": "^4.7.5",
+    "stripe": "^15.8.0",
     "swagger-autogen": "^2.23.7",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "validator": "^13.12.0",
+    "winston": "^3.13.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.0"
   }
 }

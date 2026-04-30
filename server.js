@@ -1,72 +1,10 @@
 const dotenv = require("dotenv");
+const http = require("http");
+const { Server } = require("socket.io");
 const app = require("./app");
 const connectDB = require("./config/db");
-const swaggerUi = require("swagger-ui-express");
-const fs = require("fs");
-const path = require("path");
-
-dotenv.config();
-
-//////////////////////////////////////////////////
-// 🔥 Swagger Loader (Enterprise Level)
-//////////////////////////////////////////////////
-
-const loadSwagger = () => {
-  const files = [
-    "swagger-enterprise.json", // 🔥 الأفضل
-    "swagger-mongoose.json",
-    "swagger-fixed.json",
-    "swagger.json"
-  ];
-
-  for (const file of files) {
-    const fullPath = path.join(__dirname, file);
-
-    if (fs.existsSync(fullPath)) {
-      console.log(`📄 Swagger loaded → ${file}`);
-
-      // 🔥 مهم: remove cache عشان reload في dev
-      delete require.cache[require.resolve(fullPath)];
-
-      return require(fullPath);
-    }
-  }
-
-  console.warn("⚠️ No Swagger file found → Swagger disabled");
-  return null;
-};
-
-let swaggerDocument = loadSwagger();
-
-//////////////////////////////////////////////////
-// 🌐 Swagger Route
-//////////////////////////////////////////////////
-
-if (swaggerDocument) {
-  app.use(
-    "/api-docs",
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerDocument, {
-      explorer: true,
-      customSiteTitle: "E-Commerce API Docs",
-      swaggerOptions: {
-        persistAuthorization: true
-      }
-    })
-  );
-}
-
-//////////////////////////////////////////////////
-// ❤️ Health Check (مهم للتسليم)
-//////////////////////////////////////////////////
-
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "OK",
-    uptime: process.uptime(),
-    timestamp: new Date()
-  });
-});
+const logger = require("./config/logger");
+const { initializeSocket } = require("./socket.js");
 
 //////////////////////////////////////////////////
 // 🚀 Start Server
@@ -78,54 +16,43 @@ const startServer = async () => {
     // 🗄 Connect DB
     //////////////////////////////////////////////////
     await connectDB();
-    console.log("✅ MongoDB connected");
+    logger.info("✅ MongoDB connected");
 
     //////////////////////////////////////////////////
     // 🚀 Start Server
     //////////////////////////////////////////////////
     const PORT = process.env.PORT || 5000;
 
-    const server = app.listen(PORT, () => {
-      console.log(`🚀 Server running → http://localhost:${PORT}`);
+    const httpServer = http.createServer(app);
+    const io = new Server(httpServer, {
+      cors: {
+        origin: "*", // In production, restrict this to your frontend's URL
+        methods: ["GET", "POST"],
+      },
+    });
 
-      if (swaggerDocument) {
-        console.log(`📄 Swagger Docs → http://localhost:${PORT}/api-docs`);
-      } else {
-        console.log("⚠️ Swagger not available");
-      }
+    initializeSocket(io);
 
-      console.log(`❤️ Health Check → http://localhost:${PORT}/health`);
+    const server = httpServer.listen(PORT, () => {
+      logger.info(`🚀 Server running on port ${PORT}`);
+      logger.info(`🔌 Socket.IO server initialized`);
     });
 
     //////////////////////////////////////////////////
-    // ❌ Error Handling (Production Safe)
+    //  Error Handling (Production Safe)
     //////////////////////////////////////////////////
 
     process.on("unhandledRejection", (err) => {
-      console.error("❌ Unhandled Rejection:", err.message || err);
+      logger.error(" UNHANDLED REJECTION! Shutting down...", err);
       server.close(() => process.exit(1));
     });
 
     process.on("uncaughtException", (err) => {
-      console.error("❌ Uncaught Exception:", err.message || err);
+      logger.error(" UNCAUGHT EXCEPTION! Shutting down...", err);
       process.exit(1);
     });
-
-    //////////////////////////////////////////////////
-    // 🔄 Hot Reload Swagger (Dev Only)
-    //////////////////////////////////////////////////
-
-    if (process.env.NODE_ENV !== "production") {
-      fs.watch(__dirname, (event, filename) => {
-        if (filename && filename.includes("swagger")) {
-          console.log("🔄 Reloading Swagger...");
-          swaggerDocument = loadSwagger();
-        }
-      });
-    }
-
   } catch (error) {
-    console.error("❌ Server failed to start:", error.message || error);
+    logger.error(" Server failed to start:", error);
     process.exit(1);
   }
 };

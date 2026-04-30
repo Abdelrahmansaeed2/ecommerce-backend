@@ -13,7 +13,7 @@ const swagger = {
   info: {
     title: "E-Commerce API",
     version: "1.0.0",
-    description: "Enterprise Auto Generated Swagger"
+    description: "Enterprise Auto Generated Swagger",
   },
   servers: [{ url: BASE_URL }],
   components: {
@@ -21,13 +21,13 @@ const swagger = {
       bearerAuth: {
         type: "http",
         scheme: "bearer",
-        bearerFormat: "JWT"
-      }
+        bearerFormat: "JWT",
+      },
     },
-    schemas: {}
+    schemas: {},
   },
   security: [{ bearerAuth: [] }],
-  paths: {}
+  paths: {},
 };
 
 //////////////////////////////////////////////////
@@ -44,7 +44,7 @@ const loadModels = () => {
     const model = imported.default || imported;
 
     if (!model || !model.schema) {
-      console.warn(`⚠️ Skipped invalid model: ${file}`);
+      console.warn(`  Skipped invalid model: ${file}`);
       return;
     }
 
@@ -90,7 +90,7 @@ const convertSchema = (schema) => {
   return {
     type: "object",
     properties,
-    required
+    required,
   };
 };
 
@@ -105,7 +105,9 @@ const parseRoutes = () => {
   files.forEach((file) => {
     const content = fs.readFileSync(path.join(routesDir, file), "utf-8");
 
-    const matches = content.match(/router\.(get|post|put|patch|delete)\(["'`](.*?)["'`]/g);
+    const matches = content.match(
+      /router\.(get|post|put|patch|delete)\(["'`](.*?)["'`]/g,
+    );
 
     if (!matches) return;
 
@@ -120,13 +122,16 @@ const parseRoutes = () => {
       swagger.paths[fullPath][method] = {
         tags: [file.replace("Routes.js", "")],
         summary: `${method.toUpperCase()} ${route}`,
-        security: route.includes("login") || route.includes("register") ? [] : [{ bearerAuth: [] }],
+        security:
+          route.includes("login") || route.includes("register")
+            ? []
+            : [{ bearerAuth: [] }],
         responses: {
           200: { description: "Success" },
           400: { description: "Bad Request" },
           401: { description: "Unauthorized" },
-          404: { description: "Not Found" }
-        }
+          404: { description: "Not Found" },
+        },
       };
 
       if (method === "post" || method === "put" || method === "patch") {
@@ -134,9 +139,9 @@ const parseRoutes = () => {
           required: true,
           content: {
             "application/json": {
-              schema: { type: "object" }
-            }
-          }
+              schema: { type: "object" },
+            },
+          },
         };
       }
     });
@@ -152,8 +157,8 @@ const enhanceSchemas = () => {
     const parts = route.split("/");
     const name = parts[2]; // products, orders, etc
 
-    const schemaName = Object.keys(swagger.components.schemas).find(
-      (s) => s.toLowerCase().includes(name.slice(0, -1))
+    const schemaName = Object.keys(swagger.components.schemas).find((s) =>
+      s.toLowerCase().includes(name.slice(0, -1)),
     );
 
     if (!schemaName) return;
@@ -163,16 +168,16 @@ const enhanceSchemas = () => {
 
       if (endpoint.requestBody) {
         endpoint.requestBody.content["application/json"].schema = {
-          $ref: `#/components/schemas/${schemaName}`
+          $ref: `#/components/schemas/${schemaName}`,
         };
       }
 
       endpoint.responses[200].content = {
         "application/json": {
           schema: {
-            $ref: `#/components/schemas/${schemaName}`
-          }
-        }
+            $ref: `#/components/schemas/${schemaName}`,
+          },
+        },
       };
     });
   });
@@ -188,7 +193,7 @@ enhanceSchemas();
 
 fs.writeFileSync(
   path.join(__dirname, "swagger-enterprise.json"),
-  JSON.stringify(swagger, null, 2)
+  JSON.stringify(swagger, null, 2),
 );
 
 console.log("🚀 Enterprise Swagger Generated!");
