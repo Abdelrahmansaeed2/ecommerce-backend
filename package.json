@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+  "swagger": "node mongoose-swagger.js"
   },
   "keywords": [
     "nodejs",
@@ -24,7 +25,9 @@
     "express-rate-limit": "^7.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.3.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

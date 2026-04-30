@@ -1,0 +1,717 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "E-Commerce API",
+    "version": "1.0.0",
+    "description": "Complete E-Commerce API with JWT authentication, role-based access, categories, products, and orders."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5001/api",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.ecommerce.com/api",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "error": { "type": "string" },
+          "statusCode": { "type": "number" }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": ["username", "email", "password"],
+        "properties": {
+          "_id": { "type": "string", "example": "60d21b4667d0d8992e610c85" },
+          "username": { "type": "string", "example": "john_doe" },
+          "email": { "type": "string", "example": "john@example.com" },
+          "password": { "type": "string", "format": "password", "example": "strongP@ss123" },
+          "role": { "type": "string", "enum": ["user", "admin"], "default": "user", "example": "user" }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "role": { "type": "string" }
+        }
+      },
+      "Login": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "example": "john@example.com" },
+          "password": { "type": "string", "format": "password", "example": "strongP@ss123" }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
+          "user": { "$ref": "#/components/schemas/UserResponse" }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "_id": { "type": "string", "example": "60d21b4667d0d8992e610c90" },
+          "name": { "type": "string", "example": "Electronics" },
+          "description": { "type": "string", "example": "Gadgets, devices, and tech accessories" },
+          "image": { "type": "string", "example": "https://example.com/images/electronics.jpg" },
+          "status": { "type": "string", "enum": ["active", "inactive"], "default": "active", "example": "active" }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "required": ["name", "price", "category"],
+        "properties": {
+          "_id": { "type": "string", "example": "60d21b4667d0d8992e610c95" },
+          "name": { "type": "string", "example": "Wireless Headphones" },
+          "price": { "type": "number", "example": 99.99 },
+          "category": { "type": "string", "example": "60d21b4667d0d8992e610c90" },
+          "description": { "type": "string", "example": "Noise-cancelling over-ear headphones" },
+          "status": { "type": "string", "enum": ["active", "inactive"], "default": "active", "example": "active" },
+          "image": { "type": "string", "example": "https://example.com/images/headphones.jpg" },
+          "stock": { "type": "integer", "example": 50 }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "required": ["items", "shippingAddress", "paymentMethod"],
+        "properties": {
+          "_id": { "type": "string", "example": "60d21b4667d0d8992e610ca0" },
+          "user": { "type": "string", "example": "60d21b4667d0d8992e610c85" },
+          "userEmail": { "type": "string", "example": "john@example.com" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["product", "quantity"],
+              "properties": {
+                "product": { "type": "string", "example": "60d21b4667d0d8992e610c95" },
+                "name": { "type": "string", "example": "Wireless Headphones" },
+                "quantity": { "type": "number", "example": 2 },
+                "price": { "type": "number", "example": 99.99 }
+              }
+            }
+          },
+          "shippingAddress": {
+            "type": "object",
+            "required": ["fullName", "phone", "addressLine", "city", "country"],
+            "properties": {
+              "fullName": { "type": "string", "example": "John Doe" },
+              "phone": { "type": "string", "example": "+1234567890" },
+              "addressLine": { "type": "string", "example": "123 Main St" },
+              "city": { "type": "string", "example": "New York" },
+              "country": { "type": "string", "example": "USA" }
+            }
+          },
+          "paymentMethod": { "type": "string", "enum": ["credit_card", "paypal", "cash_on_delivery"], "example": "credit_card" },
+          "notes": { "type": "string", "example": "Leave at the front door" },
+          "totalPrice": { "type": "number", "example": 199.98 },
+          "status": { 
+            "type": "string", 
+            "enum": ["pending", "processing", "shipped", "delivered", "cancelled"],
+            "default": "pending",
+            "example": "pending"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "number", "example": 100 },
+          "page": { "type": "number", "example": 1 },
+          "limit": { "type": "number", "example": 10 },
+          "pages": { "type": "number", "example": 10 }
+        }
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Authentication information is missing or invalid",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" },
+            "example": { "message": "No token provided", "error": "Unauthorized", "statusCode": 401 }
+          }
+        }
+      },
+      "ForbiddenError": {
+        "description": "Insufficient permissions",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" },
+            "example": { "message": "Access denied. Admin role required.", "error": "Forbidden", "statusCode": 403 }
+          }
+        }
+      },
+      "NotFoundError": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" },
+            "example": { "message": "Resource not found", "error": "Not Found", "statusCode": 404 }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" },
+            "example": { "message": "Validation failed", "error": "Bad Request", "statusCode": 400 }
+          }
+        }
+      }
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register user",
+        "description": "Creates a new user account with 'user' role by default",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/User" }
+            }
+          }
+        },
+        "responses": {
+          "201": { 
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserResponse" },
+                "example": {
+                  "_id": "60d21b4667d0d8992e610c85",
+                  "username": "john_doe",
+                  "email": "john@example.com",
+                  "role": "user"
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login user",
+        "description": "Authenticates user and returns JWT token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Login" }
+            }
+          }
+        },
+        "responses": {
+          "200": { 
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+              }
+            }
+          },
+          "401": { 
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "message": "Invalid email or password", "statusCode": 401 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": ["Product"],
+        "summary": "Get All Products (Filter + Pagination)",
+        "security": [],
+        "parameters": [
+          { "name": "search", "in": "query", "schema": { "type": "string" }, "description": "Search by product name" },
+          { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category ID" },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["active", "inactive"] } },
+          { "name": "minPrice", "in": "query", "schema": { "type": "number" } },
+          { "name": "maxPrice", "in": "query", "schema": { "type": "number" } },
+          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["name", "price", "createdAt"] }, "description": "Field to sort by" },
+          { "name": "order", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"] }, "description": "Sort order" },
+          { "name": "page", "in": "query", "schema": { "type": "number", "minimum": 1, "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "number", "minimum": 1, "maximum": 100, "default": 10 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Products fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Product" } },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                },
+                "example": {
+                  "message": "Products retrieved successfully",
+                  "data": [
+                    {
+                      "_id": "60d21b4667d0d8992e610c95",
+                      "name": "Wireless Headphones",
+                      "price": 99.99,
+                      "category": "60d21b4667d0d8992e610c90",
+                      "description": "Noise-cancelling over-ear headphones",
+                      "status": "active"
+                    }
+                  ],
+                  "pagination": {
+                    "total": 100,
+                    "page": 1,
+                    "limit": 10,
+                    "pages": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Product"],
+        "summary": "Create Product",
+        "description": "Creates a new product (Admin only)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Product" }
+            }
+          }
+        },
+        "responses": {
+          "201": { 
+            "description": "Product created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": ["Product"],
+        "summary": "Get Single Product",
+        "security": [],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Product ID" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFoundError" }
+        }
+      },
+      "put": {
+        "tags": ["Product"],
+        "summary": "Update Product",
+        "description": "Completely replaces a product (Admin only)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Product" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product updated successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" },
+          "404": { "$ref": "#/components/responses/NotFoundError" }
+        }
+      },
+      "delete": {
+        "tags": ["Product"],
+        "summary": "Delete Product",
+        "description": "Deletes a product (Admin only)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deleted successfully",
+            "content": {
+              "application/json": {
+                "example": { "message": "Product deleted successfully" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" },
+          "404": { "$ref": "#/components/responses/NotFoundError" }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": ["Category"],
+        "summary": "Get All Categories",
+        "security": [],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["active", "inactive"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categories fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Category" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Category"],
+        "summary": "Create Category",
+        "description": "Creates a new category (Admin only)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Category" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Category" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" }
+        }
+      }
+    },
+    "/categories/{id}": {
+      "get": {
+        "tags": ["Category"],
+        "summary": "Get Single Category",
+        "security": [],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Category" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFoundError" }
+        }
+      },
+      "put": {
+        "tags": ["Category"],
+        "summary": "Update Category",
+        "description": "Completely replaces a category (Admin only)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Category" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Category updated successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Category" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" },
+          "404": { "$ref": "#/components/responses/NotFoundError" }
+        }
+      },
+      "delete": {
+        "tags": ["Category"],
+        "summary": "Delete Category",
+        "description": "Deletes a category (Admin only)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category deleted successfully",
+            "content": {
+              "application/json": {
+                "example": { "message": "Category deleted successfully" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" },
+          "404": { "$ref": "#/components/responses/NotFoundError" }
+        }
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": ["Order"],
+        "summary": "Get All Orders",
+        "description": "Retrieves all orders (Admin only)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] } },
+          { "name": "userEmail", "in": "query", "schema": { "type": "string" }, "description": "Filter by user email" },
+          { "name": "page", "in": "query", "schema": { "type": "number", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "number", "default": 10 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Order" } },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" }
+        }
+      },
+      "post": {
+        "tags": ["Order"],
+        "summary": "Create Order",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Order" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" }
+        }
+      }
+    },
+    "/orders/mine": {
+      "get": {
+        "tags": ["Order"],
+        "summary": "Get My Orders",
+        "description": "Retrieves orders for the authenticated user",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "number", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "number", "default": 10 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "User orders fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Order" } },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "tags": ["Order"],
+        "summary": "Get Single Order",
+        "description": "Retrieves a specific order (users can access their own orders, admins can access any)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" },
+          "404": { "$ref": "#/components/responses/NotFoundError" }
+        }
+      },
+      "put": {
+        "tags": ["Order"],
+        "summary": "Update Order",
+        "description": "Updates an order (Admin only for status changes)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] },
+                  "notes": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order updated successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" },
+          "404": { "$ref": "#/components/responses/NotFoundError" }
+        }
+      },
+      "delete": {
+        "tags": ["Order"],
+        "summary": "Delete Order",
+        "description": "Deletes an order (Admin only)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order deleted successfully",
+            "content": {
+              "application/json": {
+                "example": { "message": "Order deleted successfully" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/UnauthorizedError" },
+          "403": { "$ref": "#/components/responses/ForbiddenError" },
+          "404": { "$ref": "#/components/responses/NotFoundError" }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "Auth", "description": "Authentication endpoints" },
+    { "name": "Product", "description": "Product management endpoints" },
+    { "name": "Category", "description": "Category management endpoints" },
+    { "name": "Order", "description": "Order management endpoints" }
+  ]
+}
